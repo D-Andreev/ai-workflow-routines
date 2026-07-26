@@ -37,6 +37,14 @@ INSTALL_INTERNAL_SKILLS=1 npx skills add D-Andreev/ai-workflow-routines --copy -
 
 `/workflow-init` creates GitHub labels and scaffolds `.claude/workflows/` (commit that folder).
 
+To update skills later, re-run the same install command (targets `.claude/skills/` — do **not** use bare `npx skills update`, it installs to `.agents/` instead):
+
+```bash
+INSTALL_INTERNAL_SKILLS=1 npx skills add D-Andreev/ai-workflow-routines --copy --skill '*' -a claude-code -y
+```
+
+Start a **new Claude Code session** after updating. Your `.claude/workflows/` files are unchanged — no need to run init again.
+
 **2. Create routines**
 
 At [claude.ai/code/routines](https://claude.ai/code/routines), create three routines — connect your repo ([Claude GitHub App](https://github.com/apps/claude) required), paste the prompt, set the label trigger:
@@ -52,5 +60,3 @@ At [claude.ai/code/routines](https://claude.ai/code/routines), create three rout
 1. Open a GitHub issue describing the work
 2. Add label **`workflow:start`**
 3. Open the session link on the issue and follow the phases above
-
-To update skills later, re-run the `npx skills add` command (no need to run init again).
