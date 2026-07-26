@@ -22,8 +22,8 @@ See [handoff-format.md](../workflow-routines/handoff-format.md), [state-schema.m
 
 | File | Use |
 |------|-----|
-| `.claude/workflows/PROJECT.md` | Existing facts + `## Language` — read only |
-| `.claude/workflows/learnings/gotchas.md` | Skim |
+| `workflow/PROJECT.md` | Existing facts + `## Language` — read only |
+| `workflow/learnings/gotchas.md` | Skim |
 | Application code | Read-only |
 
 Do not edit or commit any repo file during clarify.
@@ -57,7 +57,7 @@ Same as A/B.
 ## Start sequence (mode A only)
 
 1. **Read the issue** — number, title, body, labels, URL.
-2. **Verify init** — if `.claude/workflows/PROJECT.md` is missing, stop; tell user to run `/workflow-init`.
+2. **Verify init** — if `workflow/PROJECT.md` is missing, stop; tell user to run `/workflow-init`.
 3. **Initialize in-session artifacts**:
    - `task.md` from issue title + body
    - `language.md` — copy existing `## Language` from `PROJECT.md` if any; else placeholder

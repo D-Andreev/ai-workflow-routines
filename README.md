@@ -35,7 +35,7 @@ INSTALL_INTERNAL_SKILLS=1 npx skills add D-Andreev/ai-workflow-routines --copy -
 /workflow-init
 ```
 
-`/workflow-init` creates GitHub labels and scaffolds `.claude/workflows/` (commit that folder).
+`/workflow-init` creates GitHub labels and scaffolds `workflow/` (commit that folder). 
 
 To update skills later, re-run the same install command:
 
@@ -43,7 +43,7 @@ To update skills later, re-run the same install command:
 INSTALL_INTERNAL_SKILLS=1 npx skills add D-Andreev/ai-workflow-routines --copy --skill '*' -a claude-code -y
 ```
 
-Start a **new Claude Code session** after updating. Your `.claude/workflows/` files are unchanged — no need to run init again.
+Start a **new Claude Code session** after updating. Your `workflow/` files are unchanged — no need to run init again.
 
 **2. Create routines**
 
