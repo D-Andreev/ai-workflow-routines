@@ -27,22 +27,50 @@ flowchart LR
 
 ## Install
 
-From your **target project**:
+From your **target project** (not this repo):
 
 ```bash
 INSTALL_INTERNAL_SKILLS=1 npx skills add D-Andreev/ai-workflow-routines --copy --skill '*' -a claude-code -y
 /workflow-init
 ```
 
+Workflow files (`PROJECT.md`, etc.) live under **`.claude/workflows/`** — separate from skills. Commit that directory to git; it is not managed by the skills CLI.
+
 ## Update skills
 
-After pushing to GitHub, from the target project:
+After pushing changes to GitHub, from the **target project**:
 
 ```bash
-npx skills update -y
+INSTALL_INTERNAL_SKILLS=1 npx skills add D-Andreev/ai-workflow-routines --copy --skill '*' -a claude-code -y
 ```
 
-Re-run the install command or use `-g` for global installs. Start a **new Claude Code session** after updating.
+Global install: add `-g` to the `skills add` command above (skills land in `~/.claude/skills/`).
+
+Start a **new Claude Code session** after updating.
+
+### If skills disappeared after `skills update`
+
+Re-run the install command above.
+
+If `.claude/skills/` is missing but `.agents/skills/` has your skills, symlink (from project root):
+
+```bash
+mkdir -p .claude/skills
+for skill in .agents/skills/*/; do
+  name=$(basename "$skill")
+  ln -sf "../../.agents/skills/$name" ".claude/skills/$name"
+done
+```
+
+Or use `--copy` via `skills add` to populate `.claude/skills/` directly.
+
+Verify: `npx skills list -a claude-code` and check `.claude/skills/workflow-clarify/SKILL.md` exists.
+
+**Local development** (before push): re-run `skills add` with a local path — `skills update` does not track local installs:
+
+```bash
+INSTALL_INTERNAL_SKILLS=1 npx skills add /path/to/ai-workflow-routines --copy --skill '*' -a claude-code -y
+```
 
 ## Labels
 
