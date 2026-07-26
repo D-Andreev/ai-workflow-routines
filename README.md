@@ -18,7 +18,7 @@ flowchart LR
     issue["Issue + workflow:start"]
     clarify["Clarify"]
     implement["Implement"]
-    aiReview["AI Review\n(session)"]
+    aiReview["AI Review\n"]
     human["Human review\n(GitHub PR)"]
 
     issue --> clarify
