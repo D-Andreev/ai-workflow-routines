@@ -18,7 +18,7 @@ flowchart LR
 | **Implement** | Creates branch, writes code, opens **draft PR** | Wait, or watch in the session |
 | **AI Review** | Reviews the diff; posts **one** PR comment with verdict | Nothing — read the PR comment and full report on branch |
 | **Human review** | — | If REQUEST CHANGES: fix and re-run review. Else: test locally, **`gh pr ready`**, merge |
-| **Comprehension** *(optional)* | — | Checkout branch, test locally, run **`/workflow-comprehension`** — or skip by merging |
+| **Comprehension** *(optional)* | Asks questions to verify you understand the changes | Answer in a local session (`/workflow-comprehension`); confirm when you're satisfied — or skip by merging |
 | **Done** | — | Merge PR, close issue |
 
 Labels advance automatically (`workflow:start` → `workflow:clarify` → `workflow:implement` → `workflow:review` → `workflow:human-review`). You only add `workflow:start` to begin.
