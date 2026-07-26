@@ -174,6 +174,7 @@ Preserve existing handoff sections when PATCHing — include full snapshot every
 - Prefer focused diffs; no drive-by refactors.
 - Never skip handoff read or `requirements_approved` check.
 - **PATCH handoff at start and complete** — same comment; always update `state.json`. Never POST a new handoff comment.
+- **Handoff writes via `gh api` only** — never `curl` / `$GITHUB_TOKEN`. If PATCH fails, post issue comment and **stop**; do not advance labels.
 - **Post session comment at start** — link to this session before repo/branch work.
 - Never leave two `workflow:*` labels on an issue.
 - **Label swap is always last** when advancing phases — see label-rules.md.

@@ -28,6 +28,8 @@ GitHub issue labeled **`workflow:implement`**. Extract issue number from webhook
 - Run without handoff comment or without approved requirements
 - Commit application code to `main`
 - Run the review phase (separate routine on `workflow:review`)
+- Use `curl` / `$GITHUB_TOKEN` for handoff PATCH — use **`gh api`** only (see handoff-format.md)
+- Skip PATCH or advance labels if handoff write fails
 
 ## If stuck
 

@@ -209,5 +209,6 @@ APPROVE | APPROVE WITH NOTES | REQUEST CHANGES
 - Reference specific files and lines in findings.
 - **PR comment must be short** — details in handoff `review-report.md`.
 - **PATCH handoff at start and complete** — same comment; always update `state.json`. Never POST a new handoff comment.
+- **Handoff writes via `gh api` only** — never `curl` / `$GITHUB_TOKEN`. If PATCH fails, post issue comment and **stop**; do not advance labels.
 - **Label swap is always last** — see label-rules.md.
 - Never leave two `workflow:*` labels on an issue.

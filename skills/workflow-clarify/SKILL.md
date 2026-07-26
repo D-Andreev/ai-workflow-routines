@@ -182,6 +182,7 @@ Each turn after an answer:
 - **Never create a branch.**
 - **Never post the handoff comment before `approve requirements`.**
 - **POST handoff at approve, then PATCH** same comment with `handoff_comment_id` from API response.
+- **Handoff writes via `gh api` only** — never `curl` / `$GITHUB_TOKEN`. If POST/PATCH fails, post issue comment and **stop**; do not swap to `workflow:implement`.
 - Never run tests, lint, migrations, or deploys.
 - Never create `CONTEXT.md`.
 - Never leave two `workflow:*` labels on an issue.

@@ -55,6 +55,50 @@ Use **per-section fences only**. Omit empty optional sections until that phase w
 
 ## Write protocol
 
+### GitHub API (cloud routines — required)
+
+Handoff POST/PATCH **must** use the **`gh` CLI** (Bash). Cloud sessions authenticate via the **[Claude GitHub App](https://github.com/apps/claude)** on the repo — not `$GITHUB_TOKEN`, not `curl`, not git credential helpers.
+
+**Do not:**
+
+- `curl` to `api.github.com` with a manually sourced token
+- Read `$GITHUB_TOKEN` from the environment and call the REST API yourself
+- Skip PATCH because the handoff is readable by marker — **reading ≠ updating `state.json`**
+
+**Do:**
+
+- `gh api …` for POST/PATCH (same auth as `gh issue comment`, `gh pr review`, label edits)
+- Verify the response — if it contains `"message"` and HTTP failed, **stop** (see failure handling below)
+- Prefer writing the comment body to a temp file, then:
+
+```bash
+# POST new handoff
+gh api --method POST "repos/{owner}/{repo}/issues/{n}/comments" \
+  --input - <<< "$(jq -n --rawfile body /tmp/handoff.md '{body: $body}')"
+
+# PATCH existing handoff (REST comment id from POST response or state.json handoff_comment_id)
+gh api --method PATCH "repos/{owner}/{repo}/issues/comments/{comment_id}" \
+  --input - <<< "$(jq -n --rawfile body /tmp/handoff.md '{body: $body}')"
+```
+
+If REST PATCH fails, retry with GraphQL `updateIssueComment` (needs comment **node** id, not numeric id):
+
+```bash
+gh api graphql -f query='mutation($id:ID!, $body:String!){
+  updateIssueComment(input:{id:$id, body:$body}) { issueComment { id } }
+}' -f id='{graphql_node_id}' -f body='...'
+```
+
+Get node id: `gh api graphql …` query `issue(number: N) { comments { nodes { id databaseId } } }`.
+
+**Routine setup:** repo must have the Claude GitHub App installed with **issues: write**. Org repos may need an admin to approve app access.
+
+### On handoff write failure
+
+1. Post a **short issue comment** — phase name, that handoff PATCH/POST failed, paste error snippet, link session if known.
+2. **Stop** — do not swap workflow labels, do not open PR, do not claim the next phase will pick up stale state.
+3. Do **not** tell the user that reading the handoff by marker is sufficient.
+
 ### Clarify (POST once, then PATCH for comment id)
 
 1. Build full snapshot from in-session artifacts
@@ -70,12 +114,7 @@ Use **per-section fences only**. Omit empty optional sections until that phase w
 4. **PATCH at phase complete** — update `state.json` (phase fields, history `phase_completed`, `labels_updated`), add phase sections (`implement-handoff.md`, `review-report.md`, …)
 5. **Full snapshot every PATCH** — include all existing sections, not just deltas
 
-```bash
-gh api --method POST repos/{owner}/{repo}/issues/{n}/comments -f body='...'
-gh api --method PATCH repos/{owner}/{repo}/issues/comments/{comment_id} -f body='...'
-```
-
-**Never POST a second handoff comment** for the same issue.
+**Never POST a second handoff comment** for the same issue. **Never use curl** for handoff writes — see [GitHub API (cloud routines)](#github-api-cloud-routines--required) above.
 
 ## Read protocol
 

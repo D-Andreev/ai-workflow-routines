@@ -28,6 +28,8 @@ GitHub issue labeled **`workflow:review`**.
 - POST a new handoff comment (always PATCH the existing one)
 - PATCH handoff before PR review is posted
 - Skip the PR review submission
+- Use `curl` / `$GITHUB_TOKEN` for handoff PATCH — use **`gh api`** only (see handoff-format.md)
+- Claim marker-read is enough if PATCH fails — stop and comment on the issue
 
 ## Session
 

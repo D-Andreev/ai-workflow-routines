@@ -47,7 +47,7 @@ Start a **new Claude Code session** after updating. Your `workflow/` files are u
 
 **2. Create routines**
 
-At [claude.ai/code/routines](https://claude.ai/code/routines), create three routines — connect your repo ([Claude GitHub App](https://github.com/apps/claude) required), paste the prompt, set the label trigger:
+At [claude.ai/code/routines](https://claude.ai/code/routines), create three routines — connect your repo with the [Claude GitHub App](https://github.com/apps/claude) (**required** for issue comments, labels, PR reviews, and handoff PATCH). Org repos: an admin may need to approve app access.
 
 | Routine | Label trigger | Paste from |
 |---------|---------------|------------|

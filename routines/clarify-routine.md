@@ -26,6 +26,8 @@ Sections: `state.json`, `task.md`, `language.md`, `requirements.md`, optional `a
 
 **Never POST or PATCH handoff during Q&A.**
 
+Handoff POST/PATCH: **`gh api` only** — not curl. See handoff-format.md.
+
 ## Do not
 
 - Edit or commit repo files
