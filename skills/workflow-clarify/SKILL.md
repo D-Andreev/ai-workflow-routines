@@ -63,8 +63,8 @@ Same as A/B.
    - `language.md` — copy existing `## Language` from `PROJECT.md` if any; else placeholder
    - `state.json` per [fixtures/state-example-clarify-start.json](../workflow-routines/fixtures/state-example-clarify-start.json)
 4. **Post session comment** (separate) — Claude Code session URL. Record `session_linked` in in-session state.
-5. Ask the **first** grilling question.
-6. **Swap labels last** — remove `workflow:start`, add `workflow:clarify`. **Nothing else on GitHub after this.**
+5. **Swap labels** — remove `workflow:start`, add `workflow:clarify` (before the first question so the `issues.labeled` webhook fires early, not after Q1).
+6. Ask the **first** grilling question. **Nothing else on GitHub after this.**
 
 **Do not post the handoff comment yet.**
 
@@ -170,7 +170,7 @@ Each turn after an answer:
 
 | When | Action |
 |------|--------|
-| Start | Session comment → first question → **label swap last** |
+| Start | Session comment → **label swap** → first question |
 | Each Q&A turn | **Nothing on GitHub** |
 | Approve | POST handoff → short approval comment → **label swap last** |
 
@@ -183,5 +183,5 @@ Each turn after an answer:
 - Never run tests, lint, migrations, or deploys.
 - Never create `CONTEXT.md`.
 - Never leave two `workflow:*` labels on an issue.
-- **Label swap is always last** when advancing phases — see label-rules.md.
+- **Label swap last** when advancing to the next phase (approve → implement). At **start**, swap to `workflow:clarify` before Q1 — see label-rules.md.
 - **Never start implement** — only set `workflow:implement` and stop.
