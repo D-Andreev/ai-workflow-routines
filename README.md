@@ -26,7 +26,7 @@ Labels advance automatically (`workflow:start` → `workflow:clarify` → `workf
 
 ## Setup
 
-One-time, in your **target repo** (not this one):
+One-time, in your **target repo**:
 
 **1. Install skills and init**
 
@@ -37,7 +37,7 @@ INSTALL_INTERNAL_SKILLS=1 npx skills add D-Andreev/ai-workflow-routines --copy -
 
 `/workflow-init` creates GitHub labels and scaffolds `.claude/workflows/` (commit that folder).
 
-To update skills later, re-run the same install command (targets `.claude/skills/` — do **not** use bare `npx skills update`, it installs to `.agents/` instead):
+To update skills later, re-run the same install command:
 
 ```bash
 INSTALL_INTERNAL_SKILLS=1 npx skills add D-Andreev/ai-workflow-routines --copy --skill '*' -a claude-code -y
