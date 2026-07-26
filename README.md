@@ -18,8 +18,8 @@ flowchart LR
 |-------|------------------|-------------|
 | **Clarify** | Asks questions, writes requirements | Answer in the session. Say **`approve requirements`** when done |
 | **Implement** | Creates branch, writes code, opens **draft PR** | Wait, or watch in the session |
-| **AI Review** | Reviews the diff; fixes things you ask for | Say **`proceed to human review`** when satisfied |
-| **Human review** | — | Checkout branch, test locally. Optional: **`/workflow-comprehension`**. Run **`gh pr ready`**, merge when happy |
+| **AI Review** | Reviews the diff; posts short PR comment; submits approve / approve-with-notes / request-changes | Nothing — check the PR review on GitHub |
+| **Human review** | — | If REQUEST CHANGES: fix and re-run review. Else: test locally, optional **`/workflow-comprehension`**, **`gh pr ready`**, merge |
 | **Done** | — | Merge PR, close issue |
 
 Labels advance automatically (`workflow:start` → `workflow:clarify` → `workflow:implement` → `workflow:review` → `workflow:human-review`). You only add `workflow:start` to begin.

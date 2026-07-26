@@ -14,17 +14,21 @@ GitHub issue labeled **`workflow:review`**.
 ## Your job
 
 1. **Read handoff** on the issue; checkout **`work_branch`** from handoff state.
-2. **Fresh-eyes review** — `git diff {base_branch}...HEAD`, run scenario tests + principles pass (see skill).
-3. **Present findings in this session** — verdict, critical/suggestions, top scenarios.
-4. **Interactive loop** — user asks for fixes → apply on branch, commit, push, summarize; repeat until they say **`proceed to human review`** (or `approve review`).
-5. On advance — **PATCH handoff** with `review-report.md`, short issue comment, swap label to **`workflow:human-review` last**, **stop**.
+2. **Post session comment** on the issue with session URL.
+3. **PATCH handoff (start)** — update `state.json` (`phase: review`, `status: ai_running`, history `started`).
+4. **Fresh-eyes review** — diff, scenario tests, principles pass (see skill).
+5. **Verdict** — APPROVE, APPROVE WITH NOTES, or REQUEST CHANGES.
+6. **Post short comment on the PR** and **submit matching PR review** (`gh pr review --approve`, `--approve` with notes body, or `--request-changes`).
+7. **PATCH handoff (complete)** with `review-report.md` + updated `state.json`, short issue comment, swap label to **`workflow:human-review` last**, **stop**.
 
 ## Do not
 
-- PATCH handoff during the fix loop (only at end)
-- Set `workflow:human-review` before the user advances
-- Replace human PR review — humans review on GitHub after the label swap
+- Wait for human approval or run an interactive fix loop
+- Commit fixes to the branch during review
+- POST a new handoff comment (always PATCH the existing one)
+- PATCH handoff before PR review is posted
+- Skip the PR review submission
 
 ## Session
 
-Post session comment at start with session URL. User works in **this session**, not issue comments, until they proceed.
+Post session comment on the issue at start with session URL. Complete the full sequence autonomously — no user input required.

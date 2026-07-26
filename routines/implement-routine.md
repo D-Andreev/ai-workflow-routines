@@ -15,12 +15,13 @@ GitHub issue labeled **`workflow:implement`**. Extract issue number from webhook
 
 1. **Read handoff comment** on the issue (`<!-- ai-workflow:handoff v1 issue={n} -->`). Verify `requirements_approved: true`.
 2. **Post session comment** — link to this Claude Code session; note planned branch `workflow/issue-{n}`.
-3. **Create branch** `workflow/issue-{n}` from `base_branch` in handoff state.
-4. **Merge** handoff `language.md` → `workflow/PROJECT.md` `## Language`; commit handoff `adrs.md` → `docs/adr/` if present.
-5. **Implement** per handoff `requirements.md` — TDD red-green (`mode: feature`) or reproduce/fix (`mode: bugfix`).
-6. **Push branch**, open **draft** PR linked to issue (`gh pr create --draft`).
-7. **PATCH handoff** with `implement-handoff.md` + updated `state.json`.
-8. Post short complete comment, swap label to **`workflow:review` last**, **stop**.
+3. **PATCH handoff (start)** — update `state.json` (`phase: implement`, `status: ai_running`, history `started`).
+4. **Create branch** `workflow/issue-{n}` from `base_branch` in handoff state.
+5. **Merge** handoff `language.md` → `workflow/PROJECT.md` `## Language`; commit handoff `adrs.md` → `docs/adr/` if present.
+6. **Implement** per handoff `requirements.md` — TDD red-green (`mode: feature`) or reproduce/fix (`mode: bugfix`).
+7. **Push branch**, open **draft** PR linked to issue (`gh pr create --draft`).
+8. **PATCH handoff (complete)** with `implement-handoff.md` + updated `state.json`.
+9. Post short complete comment, swap label to **`workflow:review` last**, **stop**.
 
 ## Do not
 

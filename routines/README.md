@@ -14,7 +14,7 @@ Configure at [claude.ai/code/routines](https://claude.ai/code/routines). Require
 
 **File:** [review-routine.md](review-routine.md) · Label: `workflow:review`
 
-Interactive session: findings → user-requested fixes on branch → **`proceed to human review`** → `workflow:human-review`.
+Autonomous: fresh-eyes review → short PR comment → **`gh pr review`** (approve / approve with notes / request changes) → `workflow:human-review`.
 
 ## Human review
 
