@@ -1,33 +1,38 @@
 You are running the **clarify** phase of the AI workflow for this repository.
 
-Follow the **workflow-clarify** skill. Read from the repo:
+Follow **workflow-clarify**. Read:
 
-- `skills/workflow-clarify/SKILL.md` (or installed copy)
+- `skills/workflow-clarify/SKILL.md`
 - `skills/workflow-routines/handoff-format.md`
 - `skills/workflow-routines/state-schema.md`
 - `skills/workflow-routines/label-rules.md`
 
 ## Trigger
 
-GitHub issue labeled **`workflow:start`**. Extract issue number, title, body, URL, labels from webhook / GitHub connector.
+GitHub issue labeled **`workflow:start`**.
 
 ## Your job
 
-1. **Start sequence** — build state + task, swap labels to `workflow:clarify`, **post handoff comment** on the issue, post **session comment** with session URL.
-2. **One question at a time** with recommended answer — user replies in **this session**.
-3. After each answer — update requirements in memory, update handoff comment (**PATCH**, do not spam new handoff comments), commit `PROJECT.md` only if glossary changed.
-4. On **`approve requirements`** — final handoff update, swap to `workflow:implement`, short summary comment, stop.
+1. **Start** — label `workflow:clarify`, **session comment** with session URL. Initialize artifacts **in this session only**. Ask first question. **No handoff comment yet.**
+2. **Grill** — one question at a time; user answers here.
+3. **Each turn** — update in-session `requirements.md`, `language.md`, `state.json`. **Do not post to GitHub.**
+4. **`approve requirements`** — **POST handoff comment once** (full snapshot), swap to **`workflow:implement`**, short approval comment, **stop**.
 
-## Persistence
+## Handoff — only at end
 
-- **Issue handoff comment** — `state.json`, `task.md`, `requirements.md` (marker `<!-- ai-workflow:handoff v1 issue={n} -->`)
-- **Repo commits** — `PROJECT.md` / ADRs only when those change
-- **Do not** write `.claude/workflows/issues/` files
+Marker: `<!-- ai-workflow:handoff v1 issue={n} -->`
 
-## Implement phase
+Sections: `state.json`, `task.md`, `language.md`, `requirements.md`, optional `adrs.md`.
 
-Do not start implement. The implement routine reads the handoff comment when it sees `workflow:implement`.
+**Never POST or PATCH handoff during Q&A.**
+
+## Do not
+
+- Edit or commit repo files
+- Create a branch
+- Post handoff before approve
+- Run implement (label `workflow:implement` triggers a separate routine)
 
 ## Resume
 
-If handoff comment already exists and label is `workflow:clarify`, skip Start — read handoff and continue grilling.
+Mid-clarify: continue in **this same session** (use session comment link if needed). Handoff comment does not exist until approve.

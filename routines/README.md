@@ -1,20 +1,21 @@
 # Routine prompts
 
-Copy these into [claude.ai/code/routines](https://claude.ai/code/routines) when creating webhook routines.
+Configure at [claude.ai/code/routines](https://claude.ai/code/routines). Requires [Claude GitHub App](https://github.com/apps/claude).
 
 ## Clarify
 
-**File:** [clarify-routine.md](clarify-routine.md)
+**File:** [clarify-routine.md](clarify-routine.md) · Label: `workflow:start`
 
-| Setting | Value |
-|---------|-------|
-| Repositories | Your target project repo (with skills installed + init run) |
-| Trigger | GitHub → Issues → labeled |
-| Label filter | `workflow:start` |
-| Connectors | GitHub (required) |
+## Implement
 
-After creating the routine, open a test issue with title/body describing a small task and add the `workflow:start` label.
+**File:** [implement-routine.md](implement-routine.md) · Label: `workflow:implement`
 
-## Implement (future)
+## AI Review
 
-Will trigger on `workflow:implement`. Not defined yet.
+**File:** [review-routine.md](review-routine.md) · Label: `workflow:review`
+
+Interactive session: findings → user-requested fixes on branch → **`proceed to human review`** → `workflow:human-review`.
+
+## Human review
+
+No routine. Label `workflow:human-review` means humans review and merge the PR on GitHub.

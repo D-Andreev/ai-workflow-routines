@@ -2,101 +2,80 @@
 
 [![skills.sh](https://skills.sh/b/D-Andreev/ai-workflow-routines)](https://skills.sh/b/D-Andreev/ai-workflow-routines)
 
-GitHub-issue-driven development workflow powered by [Claude Code Routines](https://code.claude.com/docs/en/skills). Adapted from [ai-workflow](https://github.com/D-Andreev/ai-workflow) (Cursor dev-pipeline).
+GitHub-issue-driven development workflow powered by [Claude Code Routines](https://code.claude.com/docs/en/skills). Adapted from [ai-workflow](https://github.com/D-Andreev/ai-workflow).
 
 ## How it works
 
 ```mermaid
 flowchart LR
-    issue["GitHub issue\n+ workflow:start"]
-    clarify["Clarify routine\n(session)"]
-    handoff["Handoff comment\non issue"]
-    implement["Implement routine\n(later)"]
+    issue["Issue + workflow:start"]
+    clarify["Clarify"]
+    implement["Implement"]
+    aiReview["AI Review\n(session)"]
+    human["Human review\n(GitHub PR)"]
 
-    issue -->|webhook| clarify
-    clarify -->|PATCH each turn| handoff
-    clarify -->|approve requirements| implement
-    implement -->|read handoff| handoff
+    issue --> clarify
+    clarify --> implement
+    implement --> aiReview
+    aiReview -->|"proceed to human review"| human
 ```
 
-1. **Init once** — `PROJECT.md`, `gotchas.md` in the repo.
-2. **Open an issue** with `workflow:start` (title + body = task).
-3. **Clarify routine** → label `workflow:clarify`, handoff comment + session link, one question at a time.
-4. **`approve requirements`** → handoff updated, label `workflow:implement` → implement routine reads handoff comment.
+1. **Clarify** — session Q&A → handoff comment → `workflow:implement`
+2. **Implement** — branch, TDD, PR → `workflow:review`
+3. **AI Review** — fresh-eyes diff review in session; user can request fixes on branch until **`proceed to human review`** → `workflow:human-review`
+4. **Human review** — review and merge PR on GitHub (no routine)
 
-## Install skills
+## Install
+
+From your **target project**:
 
 ```bash
 INSTALL_INTERNAL_SKILLS=1 npx skills add D-Andreev/ai-workflow-routines --copy --skill '*' -a claude-code -y
 /workflow-init
 ```
 
-## GitHub labels
+## Update skills
 
-| Label | Purpose |
-|-------|---------|
-| `workflow:start` | User adds — triggers clarify |
-| `workflow:clarify` | Clarify in progress |
-| `workflow:implement` | Requirements approved — triggers implement (future) |
+After pushing to GitHub, from the target project:
 
-One active workflow label per issue. Routines swap atomically.
-
-## State persistence
-
-Routines are **stateless between sessions**. Handoff is on the **GitHub issue**, not in git.
-
-### Repo (committed) — shared project context
-
-| Path | Purpose |
-|------|---------|
-| `.claude/workflows/PROJECT.md` | Stack, features, `## Language` glossary |
-| `.claude/workflows/learnings/gotchas.md` | Pitfalls |
-| `docs/adr/` | Decisions from clarify |
-
-### Issue handoff comment — per-issue pipeline
-
-One comment per issue, **edited in place** after each clarify turn. Marker:
-
-```html
-<!-- ai-workflow:handoff v1 issue=42 -->
+```bash
+npx skills update -y
 ```
 
-Contains fenced sections: `state.json`, `task.md`, `requirements.md` (later phases add more). Full spec: [skills/workflow-routines/handoff-format.md](skills/workflow-routines/handoff-format.md).
+Re-run the install command or use `-g` for global installs. Start a **new Claude Code session** after updating.
 
-The **implement routine** (and clarify resume) loads artifacts by parsing this comment — no repo files under `issues/{n}/`.
+## Labels
 
-### Separate session comment
+| Label | Triggers |
+|-------|----------|
+| `workflow:start` | Clarify routine |
+| `workflow:clarify` | Clarify in progress |
+| `workflow:implement` | Implement routine |
+| `workflow:review` | AI Review routine |
+| `workflow:human-review` | Human PR review (no routine) |
 
-Human-facing Claude Code session URL — not mixed into the handoff comment.
+## Routines
 
-### Labels
+| Routine | Label | Prompt |
+|---------|-------|--------|
+| Clarify | `workflow:start` | [routines/clarify-routine.md](routines/clarify-routine.md) |
+| Implement | `workflow:implement` | [routines/implement-routine.md](routines/implement-routine.md) |
+| AI Review | `workflow:review` | [routines/review-routine.md](routines/review-routine.md) |
 
-Trigger the next routine; not a data store.
-
-## Routines setup
-
-[claude.ai/code/routines](https://claude.ai/code/routines) + [Claude GitHub App](https://github.com/apps/claude). Clarify prompt: [routines/clarify-routine.md](routines/clarify-routine.md).
-
-## Repo layout
-
-| Path | Purpose |
-|------|---------|
-| `skills/workflow-init/` | Project setup |
-| `skills/workflow-clarify/` | Clarify phase |
-| `skills/workflow-routines/` | Handoff format, state schema, labels |
-| `routines/` | Routine prompt templates |
-
-## Migrating from ai-workflow (Cursor)
-
-| Cursor | Routines |
-|--------|----------|
-| Gitignored `artifacts/`, `state.json` | Handoff **issue comment** |
-| `/dev-pipeline continue` | New routine reads handoff comment |
-| `PROJECT.md` in repo | Same — still committed |
+Handoff format: [skills/workflow-routines/handoff-format.md](skills/workflow-routines/handoff-format.md)
 
 ## Skills
 
-| Skill | Purpose |
+| Skill | Scope |
+|-------|-------|
+| `workflow-init` | Repo setup |
+| `workflow-clarify` | Requirements; handoff at approve |
+| `workflow-implement` | Code on branch; PR |
+| `workflow-review` | AI review + fix loop; handoff at proceed |
+
+## Session commands
+
+| Phase | Advance |
 |-------|---------|
-| `workflow-init` | Scaffold durable repo files |
-| `workflow-clarify` | Grill; write handoff comment; labels |
+| Clarify | `approve requirements` |
+| AI Review | `proceed to human review` (alias: `approve review`) |
