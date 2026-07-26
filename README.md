@@ -60,3 +60,7 @@ At [claude.ai/code/routines](https://claude.ai/code/routines), create three rout
 1. Open a GitHub issue describing the work
 2. Add label **`workflow:start`**
 3. Open the session link on the issue and follow the phases above
+
+## Example
+
+See [simple-todo-app](https://github.com/D-Andreev/simple-todo-app) — a repo set up with this workflow. Browse its issues and PRs to see clarify → implement → review in action.
