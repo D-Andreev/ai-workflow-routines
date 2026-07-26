@@ -17,7 +17,8 @@ flowchart LR
 | **Clarify** | Asks questions, writes requirements | Answer in the session. Say **`approve requirements`** when done |
 | **Implement** | Creates branch, writes code, opens **draft PR** | Wait, or watch in the session |
 | **AI Review** | Reviews the diff; posts **one** PR comment with verdict | Nothing — read the PR comment and full report on branch |
-| **Human review** | — | If REQUEST CHANGES: fix and re-run review. Else: test locally, optional **`/workflow-comprehension`**, **`gh pr ready`**, merge |
+| **Human review** | — | If REQUEST CHANGES: fix and re-run review. Else: test locally, **`gh pr ready`**, merge |
+| **Comprehension** *(optional)* | — | Checkout branch, test locally, run **`/workflow-comprehension`** — or skip by merging |
 | **Done** | — | Merge PR, close issue |
 
 Labels advance automatically (`workflow:start` → `workflow:clarify` → `workflow:implement` → `workflow:review` → `workflow:human-review`). You only add `workflow:start` to begin.
@@ -40,9 +41,6 @@ To update skills later, re-run the same install command:
 ```bash
 INSTALL_INTERNAL_SKILLS=1 npx skills add D-Andreev/ai-workflow-routines --copy --skill '*' -a claude-code -y
 ```
-
-Start a **new Claude Code session** after updating. Your `workflow/` files are unchanged — no need to run init again.
-
 **2. Create routines**
 
 At [claude.ai/code/routines](https://claude.ai/code/routines), create three routines — connect your repo with the [Claude GitHub App](https://github.com/apps/claude) (**required** for issue comments, labels, PR reviews, and git push). Org repos: an admin may need to approve app access.
