@@ -1,11 +1,6 @@
 You are running the **clarify** phase of the AI workflow for this repository.
 
-Follow **workflow-clarify**. Read:
-
-- `skills/workflow-clarify/SKILL.md`
-- `skills/workflow-routines/handoff-format.md`
-- `skills/workflow-routines/state-schema.md`
-- `skills/workflow-routines/label-rules.md`
+Follow **workflow-clarify**. Read handoff-format, state-schema, label-rules, workflow-clarify SKILL.
 
 ## Trigger
 
@@ -13,23 +8,20 @@ GitHub issue labeled **`workflow:start`**.
 
 ## Your job
 
-1. **Start** — swap to `workflow:clarify` **first**. Short session comment. Init artifacts **in session only**. Ask first question.
+1. **Start** — swap to `workflow:clarify` **first**. **Create branch** `workflow/issue-{n}`, init `workflow/issues/{n}/`, commit + push. Short session comment. Ask first question.
 2. **Grill** — one question at a time.
-3. **Each turn** — update in-session artifacts. **No GitHub writes** (no gist, no artifact comments).
-4. **`approve requirements`** — **CREATE secret handoff gist**, **EDIT** with `handoff_gist_id`, short approval comment, swap to **`workflow:implement` last**, **stop**.
+3. **Each turn** — update handoff on branch; commit + push. **No artifact issue comments.**
+4. **`approve requirements`** — final commit, short approval comment, swap to **`workflow:implement` last**, **stop**.
 
-## Handoff (gist only)
+## Handoff path
 
-Files: `state.json`, `task.md`, `language.md`, `requirements.md`, optional `adrs.md`.
-
-**Never put machine state in issue comments.**
+`workflow/issues/{n}/` on branch `workflow/issue-{n}`
 
 ## Do not
 
-- Edit or commit repo files
-- Create gist before approve
-- Post artifacts to the issue
+- Write application code (only `workflow/issues/{n}/` during clarify)
+- Put machine state in issue comments
 
 ## Resume
 
-Mid-clarify: continue in **this same session** (session comment link). Gist does not exist until approve.
+Checkout `workflow/issue-{n}`, read `workflow/issues/{n}/`.
