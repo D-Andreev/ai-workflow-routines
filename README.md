@@ -6,8 +6,6 @@ Turn GitHub issues into shipped code. An improved [ai-workflow](https://github.c
 
 ## How it works
 
-Label an issue to kick off a phase. Routines post **varied, engaging** issue comments (see handoff-format example banks) — not boilerplate status lines.
-
 ```mermaid
 flowchart LR
     issue["Issue + workflow:start"] --> clarify --> implement --> aiReview --> human --> merge["Merge · close"]
