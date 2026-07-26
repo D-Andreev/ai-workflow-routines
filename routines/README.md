@@ -18,4 +18,8 @@ Interactive session: findings → user-requested fixes on branch → **`proceed 
 
 ## Human review
 
-No routine. Label `workflow:human-review` means humans review and merge the PR on GitHub.
+No routine. Label `workflow:human-review` means the author tests locally (PR stays **draft**), optionally runs `/workflow-comprehension`, then **`gh pr ready`** before inviting human reviewers.
+
+## Comprehension (optional, local)
+
+No routine. After checking out the PR branch and testing locally, run **`/workflow-comprehension`** in a local Claude Code session. Skip by merging the PR and closing the issue.

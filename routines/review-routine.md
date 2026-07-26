@@ -17,7 +17,7 @@ GitHub issue labeled **`workflow:review`**.
 2. **Fresh-eyes review** — `git diff {base_branch}...HEAD`, run scenario tests + principles pass (see skill).
 3. **Present findings in this session** — verdict, critical/suggestions, top scenarios.
 4. **Interactive loop** — user asks for fixes → apply on branch, commit, push, summarize; repeat until they say **`proceed to human review`** (or `approve review`).
-5. On advance — **PATCH handoff** with `review-report.md`, swap label to **`workflow:human-review`**, short issue comment, **stop**.
+5. On advance — **PATCH handoff** with `review-report.md`, short issue comment, swap label to **`workflow:human-review` last**, **stop**.
 
 ## Do not
 

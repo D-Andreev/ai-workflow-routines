@@ -18,12 +18,17 @@ flowchart LR
     clarify --> implement
     implement --> aiReview
     aiReview -->|"proceed to human review"| human
+    human -->|"optional"| comprehension["Comprehension\n(local session)"]
+    human -->|"or skip"| merge["Merge PR · close issue"]
+    comprehension --> merge
 ```
 
 1. **Clarify** — session Q&A → handoff comment → `workflow:implement`
-2. **Implement** — branch, TDD, PR → `workflow:review`
-3. **AI Review** — fresh-eyes diff review in session; user can request fixes on branch until **`proceed to human review`** → `workflow:human-review`
-4. **Human review** — review and merge PR on GitHub (no routine)
+2. **Implement** — branch, TDD, **draft PR** → `workflow:review` (label swap last)
+3. **AI Review** — fresh-eyes diff review in session; user can request fixes on branch until **`proceed to human review`** → `workflow:human-review` (label swap last)
+4. **Human review** — checkout branch locally, test/preview; optional **`/workflow-comprehension`**; mark PR ready (`gh pr ready`) when inviting reviewers; merge when satisfied
+5. **Comprehension** *(optional, local)* — checkout `work_branch`, test/preview, run **`/workflow-comprehension`** in a local Claude Code session; or skip straight to merge
+6. **Done** — merge PR, close issue
 
 ## Install
 
@@ -100,6 +105,7 @@ Handoff format: [skills/workflow-routines/handoff-format.md](skills/workflow-rou
 | `workflow-clarify` | Requirements; handoff at approve |
 | `workflow-implement` | Code on branch; PR |
 | `workflow-review` | AI review + fix loop; handoff at proceed |
+| `workflow-comprehension` | Optional local interview before merge (no routine) |
 
 ## Session commands
 
@@ -107,3 +113,15 @@ Handoff format: [skills/workflow-routines/handoff-format.md](skills/workflow-rou
 |-------|---------|
 | Clarify | `approve requirements` |
 | AI Review | `proceed to human review` (alias: `approve review`) |
+| Comprehension (local) | Pass naturally, or `skip-comprehension`; then merge PR and close issue |
+
+### Optional comprehension (local)
+
+After AI review sets `workflow:human-review`:
+
+1. Checkout the PR branch locally (`workflow/issue-{n}` from the issue handoff).
+2. Run tests and preview the change (PR stays **draft** — teammates are not asked to review yet).
+3. In a **local** Claude Code session: **`/workflow-comprehension`** (optionally `issue #42`).
+4. When ready for human reviewers: **`gh pr ready`** (or mark ready in GitHub UI), then merge when satisfied.
+
+No routine, no label change, no handoff update. To skip comprehension: test locally if you want, **`gh pr ready`**, merge, close issue.
