@@ -13,7 +13,7 @@ GitHub issue labeled **`workflow:start`**.
 
 ## Your job
 
-1. **Start** — **session comment** with session URL. Initialize artifacts **in this session only**. Swap to `workflow:clarify`, then ask the first question. **No handoff comment yet.**
+1. **Start** — swap to `workflow:clarify` **first** (from webhook context). Then session comment, initialize artifacts **in this session only**, ask the first question. **No handoff comment yet.**
 2. **Grill** — one question at a time; user answers here.
 3. **Each turn** — update in-session `requirements.md`, `language.md`, `state.json`. **Do not post to GitHub.**
 4. **`approve requirements`** — **POST handoff comment once** (full snapshot), short approval comment, swap to **`workflow:implement` last**, **stop**.
