@@ -11,7 +11,7 @@ GitHub issue labeled **`workflow:review`**.
 1. **Checkout** `workflow/issue-{n}`; read `workflow/issues/{n}/`.
 2. Post session comment — **vary phrasing** (handoff-format review start bank).
 3. **Commit handoff (start)** — update `state.json`; push.
-4. Fresh-eyes review → verdict. **Run tests/build only if the diff includes application code changes** (not handoff-only).
+4. Fresh-eyes review (diff + code reading only — **no tests, no build**) → verdict.
 5. **One PR comment** with verdict — `gh pr comment` only. **Never** `gh pr review`.
 6. **Commit handoff (complete)** — push. Varied issue comment (review complete bank). Swap to **`workflow:human-review` last**, **stop**.
 
@@ -21,5 +21,5 @@ GitHub issue labeled **`workflow:review`**.
 - Put artifacts in issue comments
 - Post more than one comment on the PR
 - Use `gh pr review` (approve / request-changes / comment review)
-- Run tests or build when the diff has no application code changes (handoff-only, docs-only)
+- Run tests, build, or lint during review
 - Commit code fixes during review
