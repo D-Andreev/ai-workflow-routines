@@ -6,7 +6,7 @@ Turn GitHub issues into shipped code. An improved [ai-workflow](https://github.c
 
 ## How it works
 
-Label an issue to kick off a phase. Routines post **short, engaging comments** on the issue (Claude Code voice) with session and PR links — not machine state.
+Label an issue to kick off a phase. Routines post **varied, engaging** issue comments (see handoff-format example banks) — not boilerplate status lines.
 
 ```mermaid
 flowchart LR
@@ -18,7 +18,7 @@ flowchart LR
 |-------|------------------|-------------|
 | **Clarify** | Asks questions, writes requirements | Answer in the session. Say **`approve requirements`** when done |
 | **Implement** | Creates branch, writes code, opens **draft PR** | Wait, or watch in the session |
-| **AI Review** | Reviews the diff; posts short PR comment; submits approve / approve-with-notes / request-changes | Nothing — check the PR review on GitHub |
+| **AI Review** | Reviews the diff; posts **one** PR comment with verdict | Nothing — read the PR comment and full report on branch |
 | **Human review** | — | If REQUEST CHANGES: fix and re-run review. Else: test locally, optional **`/workflow-comprehension`**, **`gh pr ready`**, merge |
 | **Done** | — | Merge PR, close issue |
 
