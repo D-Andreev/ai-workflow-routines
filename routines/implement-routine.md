@@ -9,12 +9,12 @@ GitHub issue labeled **`workflow:implement`**.
 ## Your job
 
 1. **Checkout** `workflow/issue-{n}`; read `workflow/issues/{n}/`. Verify `requirements_approved: true`.
-2. Short session comment.
+2. Post session comment (engaging, short) — e.g. `**Implement** — Building on [\`workflow/issue-{n}\`](branch_url). [Session](session_url).`
 3. **Commit handoff (start)** — update `state.json`; push.
 4. Merge language → PROJECT.md; implement per requirements. **Do not create a new branch.**
 5. Push, open **draft** PR.
 6. **Commit handoff (complete)** — `implement-handoff.md` + `state.json`; push.
-7. Short complete comment, swap to **`workflow:review` last**, **stop**.
+7. Short comment — e.g. `**Draft PR ready** — [#{pr}](pr_url); still draft until local testing.` Swap to **`workflow:review` last**, **stop**.
 
 ## Do not
 

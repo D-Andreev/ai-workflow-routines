@@ -6,7 +6,7 @@ Turn GitHub issues into shipped code. An improved [ai-workflow](https://github.c
 
 ## How it works
 
-Label an issue to kick off a phase. The routine posts **short session links** on the issue. Ephemeral machine files live on branch **`workflow/issue-{n}`** under `workflow/issues/{n}/` — not in issue comments.
+Label an issue to kick off a phase. Routines post **short, engaging comments** on the issue (Claude Code voice) with session and PR links — not machine state.
 
 ```mermaid
 flowchart LR
