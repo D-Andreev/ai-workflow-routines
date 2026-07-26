@@ -2,7 +2,14 @@
 
 [![skills.sh](https://skills.sh/b/D-Andreev/ai-workflow-routines)](https://skills.sh/b/D-Andreev/ai-workflow-routines)
 
-GitHub-issue-driven development workflow powered by [Claude Code Routines](https://code.claude.com/docs/en/skills). Adapted from [ai-workflow](https://github.com/D-Andreev/ai-workflow).
+An improved [ai-workflow](https://github.com/D-Andreev/ai-workflow) for GitHub-issue-driven development. Skills define each phase; [Claude Code Routines](https://code.claude.com/docs/en/routines) run them in the cloud on label triggers — so you can clarify, implement, and review from a phone without a local session.
+
+## Setup
+
+1. **Install skills** in your target repo (below), then run **`/workflow-init`** first — scaffolds `.claude/workflows/`, creates GitHub workflow labels, and seeds project context.
+2. **Routines** — at [claude.ai/code/routines](https://claude.ai/code/routines), create one routine per phase: paste the prompt from [`routines/`](routines/), point at the repo, and set the matching GitHub label trigger (see [Routines](#routines)).
+
+When a routine session starts, it posts a **session comment** on the issue with a link to the cloud session (so you can resume clarify, implement, or review from any device).
 
 ## How it works
 
@@ -24,13 +31,13 @@ flowchart LR
 ```
 
 1. **Clarify** — session Q&A → handoff comment → `workflow:implement`
-2. **Implement** — branch, TDD, **draft PR** → `workflow:review` (label swap last)
+2. **Implement** — branch, TDD, **draft PR** → `workflow:review` 
 3. **AI Review** — fresh-eyes diff review in session; user can request fixes on branch until **`proceed to human review`** → `workflow:human-review` (label swap last)
 4. **Human review** — checkout branch locally, test/preview; optional **`/workflow-comprehension`**; mark PR ready (`gh pr ready`) when inviting reviewers; merge when satisfied
 5. **Comprehension** *(optional, local)* — checkout `work_branch`, test/preview, run **`/workflow-comprehension`** in a local Claude Code session; or skip straight to merge
 6. **Done** — merge PR, close issue
 
-## Install
+## Install skills
 
 From your **target project** (not this repo):
 
@@ -39,7 +46,7 @@ INSTALL_INTERNAL_SKILLS=1 npx skills add D-Andreev/ai-workflow-routines --copy -
 /workflow-init
 ```
 
-Workflow files (`PROJECT.md`, etc.) live under **`.claude/workflows/`** — separate from skills. Commit that directory to git; it is not managed by the skills CLI.
+Run **`/workflow-init`** before your first issue — it creates workflow labels and scaffolds `.claude/workflows/`. Workflow files (`PROJECT.md`, etc.) live under **`.claude/workflows/`** — separate from skills. Commit that directory to git; it is not managed by the skills CLI.
 
 ## Update skills
 
@@ -53,31 +60,9 @@ Global install: add `-g` to the `skills add` command above (skills land in `~/.c
 
 Start a **new Claude Code session** after updating.
 
-### If skills disappeared after `skills update`
-
-Re-run the install command above.
-
-If `.claude/skills/` is missing but `.agents/skills/` has your skills, symlink (from project root):
-
-```bash
-mkdir -p .claude/skills
-for skill in .agents/skills/*/; do
-  name=$(basename "$skill")
-  ln -sf "../../.agents/skills/$name" ".claude/skills/$name"
-done
-```
-
-Or use `--copy` via `skills add` to populate `.claude/skills/` directly.
-
-Verify: `npx skills list -a claude-code` and check `.claude/skills/workflow-clarify/SKILL.md` exists.
-
-**Local development** (before push): re-run `skills add` with a local path — `skills update` does not track local installs:
-
-```bash
-INSTALL_INTERNAL_SKILLS=1 npx skills add /path/to/ai-workflow-routines --copy --skill '*' -a claude-code -y
-```
-
 ## Labels
+
+Created by **`/workflow-init`** via `gh label create` (`workflow:start`, `workflow:clarify`, `workflow:implement`, `workflow:review`, `workflow:human-review`).
 
 | Label | Triggers |
 |-------|----------|
@@ -88,6 +73,8 @@ INSTALL_INTERNAL_SKILLS=1 npx skills add /path/to/ai-workflow-routines --copy --
 | `workflow:human-review` | Human PR review (no routine) |
 
 ## Routines
+
+Copy each file into a routine at [claude.ai/code/routines](https://claude.ai/code/routines). Requires the [Claude GitHub App](https://github.com/apps/claude).
 
 | Routine | Label | Prompt |
 |---------|-------|--------|
@@ -101,7 +88,7 @@ Handoff format: [skills/workflow-routines/handoff-format.md](skills/workflow-rou
 
 | Skill | Scope |
 |-------|-------|
-| `workflow-init` | Repo setup |
+| `workflow-init` | Repo setup; GitHub labels |
 | `workflow-clarify` | Requirements; handoff at approve |
 | `workflow-implement` | Code on branch; PR |
 | `workflow-review` | AI review + fix loop; handoff at proceed |
