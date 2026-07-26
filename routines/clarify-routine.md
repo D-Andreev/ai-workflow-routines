@@ -13,28 +13,23 @@ GitHub issue labeled **`workflow:start`**.
 
 ## Your job
 
-1. **Start** — swap to `workflow:clarify` **first** (from webhook context). Then session comment, initialize artifacts **in this session only**, ask the first question. **No handoff comment yet.**
-2. **Grill** — one question at a time; user answers here.
-3. **Each turn** — update in-session `requirements.md`, `language.md`, `state.json`. **Do not post to GitHub.**
-4. **`approve requirements`** — **POST handoff comment once** (full snapshot), **PATCH** same comment with `handoff_comment_id`, short approval comment, swap to **`workflow:implement` last**, **stop**.
+1. **Start** — swap to `workflow:clarify` **first**. Short session comment. Init artifacts **in session only**. Ask first question.
+2. **Grill** — one question at a time.
+3. **Each turn** — update in-session artifacts. **No GitHub writes** (no gist, no artifact comments).
+4. **`approve requirements`** — **CREATE secret handoff gist**, **EDIT** with `handoff_gist_id`, short approval comment, swap to **`workflow:implement` last**, **stop**.
 
-## Handoff — only at end
+## Handoff (gist only)
 
-Marker: `<!-- ai-workflow:handoff v1 issue={n} -->`
+Files: `state.json`, `task.md`, `language.md`, `requirements.md`, optional `adrs.md`.
 
-Sections: `state.json`, `task.md`, `language.md`, `requirements.md`, optional `adrs.md`.
-
-**Never POST or PATCH handoff during Q&A.**
-
-Handoff POST/PATCH: **`gh api` only** — not curl. See handoff-format.md.
+**Never put machine state in issue comments.**
 
 ## Do not
 
 - Edit or commit repo files
-- Create a branch
-- Post handoff before approve
-- Run implement (label `workflow:implement` triggers a separate routine)
+- Create gist before approve
+- Post artifacts to the issue
 
 ## Resume
 
-Mid-clarify: continue in **this same session** (use session comment link if needed). Handoff comment does not exist until approve.
+Mid-clarify: continue in **this same session** (session comment link). Gist does not exist until approve.

@@ -1,36 +1,23 @@
 You are running the **implement** phase of the AI workflow for this repository.
 
-Follow **workflow-implement**. Read:
-
-- `skills/workflow-implement/SKILL.md` (or installed copy)
-- `skills/workflow-routines/handoff-format.md`
-- `skills/workflow-routines/state-schema.md`
-- `skills/workflow-routines/label-rules.md`
+Follow **workflow-implement**. Read handoff-format, state-schema, label-rules, and workflow-implement SKILL.
 
 ## Trigger
 
-GitHub issue labeled **`workflow:implement`**. Extract issue number from webhook / GitHub connector.
+GitHub issue labeled **`workflow:implement`**.
 
 ## Your job
 
-1. **Read handoff comment** on the issue (`<!-- ai-workflow:handoff v1 issue={n} -->`). Verify `requirements_approved: true`.
-2. **Post session comment** — link to this Claude Code session; note planned branch `workflow/issue-{n}`.
-3. **PATCH handoff (start)** — update `state.json` (`phase: implement`, `status: ai_running`, history `started`).
-4. **Create branch** `workflow/issue-{n}` from `base_branch` in handoff state.
-5. **Merge** handoff `language.md` → `workflow/PROJECT.md` `## Language`; commit handoff `adrs.md` → `docs/adr/` if present.
-6. **Implement** per handoff `requirements.md` — TDD red-green (`mode: feature`) or reproduce/fix (`mode: bugfix`).
-7. **Push branch**, open **draft** PR linked to issue (`gh pr create --draft`).
-8. **PATCH handoff (complete)** with `implement-handoff.md` + updated `state.json`.
-9. Post short complete comment, swap label to **`workflow:review` last**, **stop**.
+1. **Read handoff gist** (pointer marker or `handoff_gist_id`). Verify `requirements_approved: true`.
+2. Short session comment.
+3. **EDIT gist (start)** — update `state.json`.
+4. Create branch `workflow/issue-{n}`; merge language → PROJECT.md; implement per requirements.
+5. Push branch, open **draft** PR.
+6. **EDIT gist (complete)** with `implement-handoff.md` + `state.json`.
+7. Short complete comment, swap to **`workflow:review` last**, **stop**.
 
 ## Do not
 
-- Run without handoff comment or without approved requirements
-- Commit application code to `main`
-- Run the review phase (separate routine on `workflow:review`)
-- Use `curl` / `$GITHUB_TOKEN` for handoff PATCH — use **`gh api`** only (see handoff-format.md)
-- Skip PATCH or advance labels if handoff write fails
-
-## If stuck
-
-Post an issue comment describing what is missing or failed preconditions.
+- Put artifacts in issue comments
+- Create a new handoff gist
+- Advance labels if gist edit fails

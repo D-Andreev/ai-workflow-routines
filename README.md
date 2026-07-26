@@ -6,7 +6,7 @@ Turn GitHub issues into shipped code. An improved [ai-workflow](https://github.c
 
 ## How it works
 
-Label an issue to kick off a phase. The routine posts a **session link** on the issue so you can open it from any device.
+Label an issue to kick off a phase. The routine posts **short session links** on the issue. Machine state lives in a **secret handoff gist** — not in issue comments or repo workflow folders.
 
 ```mermaid
 flowchart LR
@@ -47,7 +47,7 @@ Start a **new Claude Code session** after updating. Your `workflow/` files are u
 
 **2. Create routines**
 
-At [claude.ai/code/routines](https://claude.ai/code/routines), create three routines — connect your repo with the [Claude GitHub App](https://github.com/apps/claude) (**required** for issue comments, labels, PR reviews, and handoff PATCH). Org repos: an admin may need to approve app access.
+At [claude.ai/code/routines](https://claude.ai/code/routines), create three routines — connect your repo with the [Claude GitHub App](https://github.com/apps/claude) (**required** for issue comments, labels, PR reviews, handoff gists, and git push). Org repos: an admin may need to approve app access.
 
 | Routine | Label trigger | Paste from |
 |---------|---------------|------------|
