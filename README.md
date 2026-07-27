@@ -59,4 +59,4 @@ At [claude.ai/code/routines](https://claude.ai/code/routines), create three rout
 
 ## Example
 
-See [simple-todo-app](https://github.com/D-Andreev/simple-todo-app) — a repo set up with this workflow. Browse its issues and PRs to see clarify → implement → review in action.
+See [simple-todo-app](https://github.com/D-Andreev/simple-todo-app) — a repo set up with this workflow. Browse its [issues](https://github.com/D-Andreev/simple-todo-app/issues/24) and PRs to see clarify → implement → review in action.
