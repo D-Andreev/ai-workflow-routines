@@ -1,0 +1,8 @@
+{
+  "name": "ai-workflow-routines",
+  "version": "1.0.0",
+  "description": "Workflow routines for GitHub issues",
+  "scripts": {
+    "test": "node --test bin/*.test.js"
+  }
+}
