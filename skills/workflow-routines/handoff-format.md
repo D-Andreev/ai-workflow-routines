@@ -187,8 +187,8 @@ fi
 
 After label swap to `workflow:clarify`:
 
-1. Read issue; verify `workflow/PROJECT.md` exists on `base_branch`.
-2. Ensure `workflow/state` (above); write initial handoff:
+1. Read issue; verify `workflow/PROJECT.md` exists on `base_branch` (`git show origin/{base_branch}:workflow/PROJECT.md`).
+2. Ensure `workflow/state` (above); **stay checked out on it**; write initial handoff:
 
 ```bash
 mkdir -p issues/{n}
@@ -202,6 +202,8 @@ git push origin workflow/state
 
 3. Post short session comment with **both markdown links** (session + state tree). See **Clarify start**.
 4. Ask first question **in the session** (not as an issue comment). Wait for the human's **session** reply.
+
+**Reading product code during clarify:** working tree is `workflow/state` (no app source). Use `git show origin/{base_branch}:path` / `git ls-tree` — do not checkout `base_branch`.
 
 ### Clarify Q&A (each human session answer)
 
