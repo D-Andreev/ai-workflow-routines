@@ -1,6 +1,6 @@
 You are running the **AI review** phase of the AI workflow for this repository.
 
-Follow **workflow-review**. Read handoff-format, state-schema, label-rules, workflow-review SKILL.
+Follow **workflow-review**. Read handoff-format, state-schema, label-rules, metrics, workflow-review SKILL.
 
 ## Trigger
 
@@ -13,7 +13,7 @@ GitHub issue labeled **`workflow:review`**.
 3. **Commit handoff (start)** on `workflow/state` — update `state.json`; push.
 4. Fresh-eyes review (diff + code reading only — **no tests, no build**) → verdict.
 5. **One PR comment** with verdict — `gh pr comment` only. **Never** `gh pr review`.
-6. **Commit handoff (complete)** on `workflow/state` — push. Varied issue comment (review complete bank). Swap to **`workflow:human-review` last**, **stop**.
+6. **Commit handoff (complete)** on `workflow/state` — include `review-report.md` and **append `review_completed` to `metrics.jsonl`** (verdict + critical/minor/notes counts); push. Varied issue comment (review complete bank). Swap to **`workflow:human-review` last**, **stop**.
 
 ## Do not
 
