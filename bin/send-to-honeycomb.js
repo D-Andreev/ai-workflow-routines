@@ -79,17 +79,20 @@ class HoneycombClient {
   }
 }
 
-function loadMetrics(stateRoot) {
-  const metrics = [];
+function loadData(stateRoot) {
+  const data = [];
   const issuesDir = path.join(stateRoot, "issues");
 
   if (!fs.existsSync(issuesDir)) {
-    return metrics;
+    return data;
   }
 
   const issues = fs.readdirSync(issuesDir);
   for (const issue of issues) {
-    const metricsFile = path.join(issuesDir, issue, "metrics.jsonl");
+    const issueDir = path.join(issuesDir, issue);
+
+    // Load metrics.jsonl
+    const metricsFile = path.join(issueDir, "metrics.jsonl");
     if (fs.existsSync(metricsFile)) {
       const lines = fs
         .readFileSync(metricsFile, "utf-8")
@@ -98,15 +101,40 @@ function loadMetrics(stateRoot) {
 
       for (const line of lines) {
         try {
-          metrics.push(JSON.parse(line));
+          data.push(JSON.parse(line));
         } catch (e) {
           console.error(`⚠️  Invalid JSON in ${metricsFile}: ${e.message}`);
         }
       }
     }
+
+    // Load findings-grade.json
+    const gradesFile = path.join(issueDir, "findings-grade.json");
+    if (fs.existsSync(gradesFile)) {
+      try {
+        const grade = JSON.parse(fs.readFileSync(gradesFile, "utf-8"));
+        grade._type = "findings_grade";
+        data.push(grade);
+      } catch (e) {
+        console.error(`⚠️  Invalid JSON in ${gradesFile}: ${e.message}`);
+      }
+    }
+
+    // Load state.json
+    const stateFile = path.join(issueDir, "state.json");
+    if (fs.existsSync(stateFile)) {
+      try {
+        const state = JSON.parse(fs.readFileSync(stateFile, "utf-8"));
+        state._type = "state";
+        state._ts = new Date().toISOString();
+        data.push(state);
+      } catch (e) {
+        console.error(`⚠️  Invalid JSON in ${stateFile}: ${e.message}`);
+      }
+    }
   }
 
-  return metrics;
+  return data;
 }
 
 function enrichEvents(events, repo) {
@@ -180,18 +208,18 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`📊 Loading metrics from ${stateRoot}...`);
-  const metrics = loadMetrics(stateRoot);
+  console.log(`📊 Loading data from ${stateRoot}...`);
+  const data = loadData(stateRoot);
 
-  if (metrics.length === 0) {
-    console.log("ℹ️  No metrics found");
+  if (data.length === 0) {
+    console.log("ℹ️  No data found");
     process.exit(0);
   }
 
-  console.log(`✅ Loaded ${metrics.length} events`);
+  console.log(`✅ Loaded ${data.length} events`);
   console.log(`🔧 Enriching events...`);
 
-  const enriched = enrichEvents(metrics, repo);
+  const enriched = enrichEvents(data, repo);
 
   console.log(`📤 Sending to Honeycomb (${env})...`);
   console.log(`   Dataset: ${dataset}`);
