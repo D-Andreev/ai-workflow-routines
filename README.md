@@ -8,8 +8,9 @@ Turn GitHub issues into shipped code. An improved [ai-workflow](https://github.c
 
 ```mermaid
 flowchart LR
-    issue["Issue + workflow:start"] --> clarify --> implement --> aiReview --> human --> merge["Merge · close"]
+    issue["Issue + workflow:start"] --> clarify --> implement --> aiReview --> human --> merge["Merge"]
     human -->|"optional"| comprehension --> merge
+    merge --> closeIssue["Close issue"] --> closePhase["workflow:done"]
 ```
 
 | Phase | What the AI does | What you do |
@@ -18,10 +19,11 @@ flowchart LR
 | **Implement** | Creates branch, writes code, opens **draft PR** | Wait, or watch in the session |
 | **AI Review** | Reviews the diff; posts **one** PR comment with verdict | Nothing — read the PR comment and full report on `workflow/state` |
 | **Human review** | — | If REQUEST CHANGES: fix and re-run review. Else: test locally, **`gh pr ready`**, merge |
+| **Close** | On issue close (auto on PR merge if linked), grades AI review findings; swaps to `workflow:done` | Merge the PR (issue closes) — or close the issue |
 | **Comprehension** *(optional)* | Asks questions to verify you understand the changes | Answer in a local session (`/workflow-comprehension`); confirm when you're satisfied — or skip by merging |
-| **Done** | — | Merge PR, close issue |
+| **Done** | — | Label `workflow:done` |
 
-Labels advance automatically (`workflow:start` → `workflow:clarify` → `workflow:implement` → `workflow:review` → `workflow:human-review`). You only add `workflow:start` to begin.
+Labels advance automatically (`workflow:start` → … → `workflow:human-review`). **Close** runs when the **issue is closed** while labeled `workflow:human-review` (e.g. auto-close on PR merge), then sets **`workflow:done`**. You only add `workflow:start` to begin.
 
 ## Setup
 
@@ -43,13 +45,14 @@ INSTALL_INTERNAL_SKILLS=1 npx skills add D-Andreev/ai-workflow-routines --copy -
 ```
 **2. Create routines**
 
-At [claude.ai/code/routines](https://claude.ai/code/routines), create three routines — connect your repo with the [Claude GitHub App](https://github.com/apps/claude) (**required** for issue comments, labels, PR reviews, and git push). Org repos: an admin may need to approve app access.
+At [claude.ai/code/routines](https://claude.ai/code/routines), create **four** routines — connect your repo with the [Claude GitHub App](https://github.com/apps/claude) (**required** for issue comments, labels, PR reviews, and git push). Org repos: an admin may need to approve app access. Enable **Allow unrestricted branch pushes** so routines can update `workflow/state`.
 
-| Routine | Label trigger | Paste from |
-|---------|---------------|------------|
-| Clarify | `workflow:start` | [routines/clarify-routine.md](routines/clarify-routine.md) |
-| Implement | `workflow:implement` | [routines/implement-routine.md](routines/implement-routine.md) |
-| AI Review | `workflow:review` | [routines/review-routine.md](routines/review-routine.md) |
+| Routine | Trigger | Paste from |
+|---------|---------|------------|
+| Clarify | Label `workflow:start` | [routines/clarify-routine.md](routines/clarify-routine.md) |
+| Implement | Label `workflow:implement` | [routines/implement-routine.md](routines/implement-routine.md) |
+| AI Review | Label `workflow:review` | [routines/review-routine.md](routines/review-routine.md) |
+| Close | GitHub: issue **closed** + label `workflow:human-review` | [routines/close-routine.md](routines/close-routine.md) |
 
 ## Use it
 
