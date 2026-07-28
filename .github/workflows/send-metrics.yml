@@ -1,0 +1,89 @@
+name: Send Workflow Metrics to Honeycomb
+
+on:
+  pull_request:
+    types: [closed]
+  workflow_dispatch:
+    inputs:
+      repo_name:
+        description: Repository name to tag events
+        required: false
+        type: string
+
+jobs:
+  send-metrics:
+    # Only run if PR was merged (not just closed)
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout workflow-routines
+        uses: actions/checkout@v4
+        with:
+          path: workflow-routines
+
+      - name: Determine repository name
+        id: repo
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            REPO_NAME="${{ github.event.inputs.repo_name }}"
+          else
+            # Extract from PR body or use default
+            REPO_NAME="${{ github.repository }}"
+          fi
+          echo "name=${REPO_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Fetch workflow/state branch
+        working-directory: workflow-routines
+        run: |
+          git fetch origin workflow/state:workflow-state --depth=1 2>/dev/null || {
+            echo "⚠️  workflow/state branch not found"
+            echo "This may be expected if this is the first workflow run."
+            exit 0
+          }
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Send metrics to Honeycomb
+        working-directory: workflow-routines
+        env:
+          HONEYCOMB_KEY: ${{ secrets.HONEYCOMB_API_KEY }}
+          HONEYCOMB_DATASET: ${{ secrets.HONEYCOMB_DATASET || 'workflow-metrics' }}
+        run: |
+          if [ -z "$HONEYCOMB_KEY" ]; then
+            echo "⚠️  HONEYCOMB_API_KEY secret not configured"
+            echo "   Set it in repo Settings → Secrets and variables → Actions"
+            exit 0
+          fi
+
+          if [ ! -d "workflow-state" ]; then
+            echo "ℹ️  No workflow/state data to send (expected for first run)"
+            exit 0
+          fi
+
+          python3 bin/send_to_honeycomb.py \
+            --honeycomb-key "$HONEYCOMB_KEY" \
+            --dataset "$HONEYCOMB_DATASET" \
+            --repo "${{ steps.repo.outputs.name }}" \
+            workflow-state
+        continue-on-error: true
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Workflow Metrics Upload" >> $GITHUB_STEP_SUMMARY
+          if [ -d "workflow-routines/workflow-state" ]; then
+            COUNT=$(find workflow-routines/workflow-state -name "*.jsonl" -type f -exec wc -l {} + | awk '{sum+=$1} END {print sum}')
+            echo "- Metrics events: $COUNT" >> $GITHUB_STEP_SUMMARY
+            echo "- Repository: ${{ steps.repo.outputs.name }}" >> $GITHUB_STEP_SUMMARY
+            echo "- Dataset: ${{ secrets.HONEYCOMB_DATASET || 'workflow-metrics' }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- Status: No workflow/state data (expected on first run)" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "- [View in Honeycomb](https://ui.honeycomb.io/)" >> $GITHUB_STEP_SUMMARY
