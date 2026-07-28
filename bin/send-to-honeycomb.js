@@ -169,33 +169,47 @@ function enrichEvents(events, repo) {
   });
 }
 
-async function main() {
-  const args = process.argv.slice(2);
+function parseArgs(argv) {
+  const opts = {
+    apiKey: null,
+    dataset: null,
+    env: "us",
+    repo: null,
+    batchSize: 50,
+    stateRoot: null,
+  };
 
-  let apiKey;
-  let dataset;
-  let env = "us";
-  let repo;
-  let batchSize = 50;
-  let stateRoot;
+  for (let i = 2; i < argv.length; i++) {
+    const arg = argv[i];
+    const next = argv[i + 1];
 
-  for (let i = 0; i < args.length; i++) {
-    if (args[i] === "--honeycomb-key") {
-      apiKey = args[++i];
-    } else if (args[i] === "--dataset") {
-      dataset = args[++i];
-    } else if (args[i] === "--env") {
-      env = args[++i];
-    } else if (args[i] === "--repo") {
-      repo = args[++i];
-    } else if (args[i] === "--batch-size") {
-      batchSize = parseInt(args[++i]);
-    } else if (!args[i].startsWith("--")) {
-      stateRoot = args[i];
+    if (arg === "--honeycomb-key") {
+      opts.apiKey = next;
+      i++;
+    } else if (arg === "--dataset") {
+      opts.dataset = next;
+      i++;
+    } else if (arg === "--env") {
+      opts.env = next;
+      i++;
+    } else if (arg === "--repo") {
+      opts.repo = next;
+      i++;
+    } else if (arg === "--batch-size") {
+      opts.batchSize = parseInt(next);
+      i++;
+    } else if (!arg.startsWith("--")) {
+      opts.stateRoot = arg;
     }
   }
 
-  if (!apiKey || !dataset || !stateRoot) {
+  return opts;
+}
+
+async function main() {
+  const opts = parseArgs(process.argv);
+
+  if (!opts.apiKey || !opts.dataset || !opts.stateRoot) {
     console.error("Usage:");
     console.error(
       "  node send-to-honeycomb.js --honeycomb-key KEY --dataset DATASET [--repo NAME] /path/to/workflow/state"
@@ -203,13 +217,13 @@ async function main() {
     process.exit(1);
   }
 
-  if (!fs.existsSync(stateRoot)) {
-    console.error(`❌ Path not found: ${stateRoot}`);
+  if (!fs.existsSync(opts.stateRoot)) {
+    console.error(`❌ Path not found: ${opts.stateRoot}`);
     process.exit(1);
   }
 
-  console.log(`📊 Loading data from ${stateRoot}...`);
-  const data = loadData(stateRoot);
+  console.log(`📊 Loading data from ${opts.stateRoot}...`);
+  const data = loadData(opts.stateRoot);
 
   if (data.length === 0) {
     console.log("ℹ️  No data found");
@@ -219,18 +233,18 @@ async function main() {
   console.log(`✅ Loaded ${data.length} events`);
   console.log(`🔧 Enriching events...`);
 
-  const enriched = enrichEvents(data, repo);
+  const enriched = enrichEvents(data, opts.repo);
 
-  console.log(`📤 Sending to Honeycomb (${env})...`);
-  console.log(`   Dataset: ${dataset}`);
-  console.log(`   Batch size: ${batchSize}`);
+  console.log(`📤 Sending to Honeycomb (${opts.env})...`);
+  console.log(`   Dataset: ${opts.dataset}`);
+  console.log(`   Batch size: ${opts.batchSize}`);
 
-  const client = new HoneycombClient(apiKey, dataset, env);
+  const client = new HoneycombClient(opts.apiKey, opts.dataset, opts.env);
 
-  for (let i = 0; i < enriched.length; i += batchSize) {
-    const batch = enriched.slice(i, i + batchSize);
+  for (let i = 0; i < enriched.length; i += opts.batchSize) {
+    const batch = enriched.slice(i, i + opts.batchSize);
     process.stdout.write(
-      `   Batch ${Math.floor(i / batchSize) + 1}: `,
+      `   Batch ${Math.floor(i / opts.batchSize) + 1}: `,
       "utf-8"
     );
     const success = await client.sendBatch(batch);
@@ -254,7 +268,11 @@ async function main() {
   }
 }
 
-main().catch((e) => {
-  console.error(`Fatal error: ${e.message}`);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch((e) => {
+    console.error(`Fatal error: ${e.message}`);
+    process.exit(1);
+  });
+}
+
+module.exports = { parseArgs, loadData, enrichEvents, HoneycombClient };
