@@ -40,20 +40,54 @@ State in the review-report header: **"Fresh-eyes: artifacts and diff only."**
 1. **Read issue**; checkout **`workflow/state`**; pull latest; read `issues/{n}/` handoff files.
 2. Checkout **`work_branch`** (`workflow/issue-{n}`); pull latest for diff/code.
 3. **Post session comment** — vary phrasing (handoff-format review start bank). Link session + PR.
-4. **Commit handoff (start)** on `workflow/state` — update `state.json`: `phase: review`, `status: ai_running`, history `started`; push.
+4. **Commit handoff (start)** on `workflow/state` (deterministic):
+   ```bash
+   node bin/finalize-state.js \
+     --file "workflow/state/issues/{n}/state.json" \
+     --phase review \
+     --status ai_running
+   git add workflow/state/issues/{n}/state.json
+   git commit -m "Review: start issue-{n}"
+   git push origin workflow/state
+   ```
 5. **Find PR** — `gh pr list --head workflow/issue-{n} --json number,url`.
 6. **Review pass** — scenario verification + principles review (below) against work-branch diff.
 7. **Verdict** — `APPROVE` | `APPROVE WITH NOTES` | `REQUEST CHANGES`.
 8. **Post one PR comment** with verdict — `gh pr comment` only. See below. **Never** `gh pr review`.
 9. **On work branch** — capture `review_head_sha=$(git rev-parse HEAD)` before switching away.
 10. **Update handoff on `workflow/state`:**
-    - Write `review-report.md`
-    - Write **`review-findings.json`** (structured checklist — see [metrics.md](../workflow-routines/metrics.md#review-findings-checklist); empty `findings` when `APPROVE` with nothing to track). Counts must match the report.
-    - Update `state.json` — `review_verdict`, `review_head_sha`, `pr_number` / `pr_url` when known, `status: done`, history (`phase_completed`, `pr_comment_posted`)
-    - **Append one `review_completed` line** to `metrics.jsonl` (`verdict`, `critical_count`, `minor_count`, `notes_count`)
+    - Write `review-report.md` (AI-generated with your findings)
+    - Write **`review-findings.json`** (validate structure via code):
+      ```bash
+      node bin/validate-findings.js --file "workflow/state/issues/{n}/review-findings.json"
+      # Validates schema before commit
+      ```
+    - Update `state.json` (deterministic):
+      ```bash
+      node bin/finalize-state.js \
+        --file "workflow/state/issues/{n}/state.json" \
+        --phase review \
+        --status done \
+        --review-verdict "{VERDICT}" \
+        --review-head-sha "$(git -C workflow/issue-{n} rev-parse HEAD)"
+      ```
+    - **Append one `review_completed` line** to `metrics.jsonl` (validated):
+      ```bash
+      node bin/append-metric.js \
+        --file "workflow/state/issues/{n}/metrics.jsonl" \
+        --verdict "{VERDICT}" \
+        --issue {n} \
+        --critical-count {count} \
+        --minor-count {count} \
+        --notes-count {count}
+      ```
     - Commit + push `workflow/state`
 11. Post **short issue comment** — varied verdict line + PR comment link (handoff-format review complete bank).
-12. **Swap labels last** — **`workflow:human-review`**. **Stop.**
+12. **Swap labels last** (deterministic):
+    ```bash
+    node bin/swap-label.js --issue {n} --from workflow:review --to workflow:human-review
+    ```
+    **Stop.**
 
 Closeout (did humans address findings?) is **not** part of this phase — the **close routine** runs when the issue is **closed** with `workflow:human-review`.
 

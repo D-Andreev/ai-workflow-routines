@@ -53,17 +53,40 @@ If the issue lacks `workflow:human-review` or findings are missing, **stop**.
 6. **Grade each finding** (`method: llm`) → `addressed` | `partial` | `ignored` | `unknown`:
    - Read the finding `summary` + diff for its `paths` (or the full post-review diff if `paths` is empty).
    - Judge whether the human implemented the suggestion. Prefer diff evidence over “file was touched.”
-7. Write `issues/{n}/findings-grade.json` (full grade object per [metrics.md](../workflow-routines/metrics.md#close-close_completed)).
-8. **Append** one `close_completed` line to `issues/{n}/metrics.jsonl` (`phase: close`, `method: llm`). Do not rewrite prior lines.
-9. Update `state.json` — `phase: close`, `workflow_label: workflow:done`, `status: done`, `updated_at`; history `findings_graded` + `phase_completed` / `labels_updated`; set `pr_number` if missing.
+7. Write `issues/{n}/findings-grade.json` (AI grades dispositions; validate structure via code):
+   ```bash
+   node bin/validate-grade.js --file "workflow/state/issues/{n}/findings-grade.json"
+   # Validates disposition enum, required flags, counts match findings
+   ```
+8. **Append** one `close_completed` line to `issues/{n}/metrics.jsonl` (validated):
+   ```bash
+   node bin/append-metric.js \
+     --file "workflow/state/issues/{n}/metrics.jsonl" \
+     --method llm \
+     --issue {n} \
+     --suggestions-applicable {true|false}
+   # Validates method, counts, disposition enums
+   ```
+9. Update `state.json` (deterministic):
+   ```bash
+   node bin/finalize-state.js \
+     --file "workflow/state/issues/{n}/state.json" \
+     --phase close \
+     --status done \
+     --workflow-label workflow:done
+   ```
 10. Commit + push `workflow/state`:
     ```bash
-    git add issues/{n}/findings-grade.json issues/{n}/metrics.jsonl issues/{n}/state.json
-    git commit -m "workflow(issue-{n}): close"
+    git add workflow/state/issues/{n}/findings-grade.json workflow/state/issues/{n}/metrics.jsonl workflow/state/issues/{n}/state.json
+    git commit -m "Close: grade findings issue-{n}"
     git push origin workflow/state
     ```
 11. Short **issue** comment — varied summary (addressed / partial / ignored counts; call out ignored **critical**). Link state tree if natural.
-12. **Swap labels last** — remove `workflow:human-review`, add **`workflow:done`**. **Stop.**
+12. **Swap labels last** (deterministic):
+    ```bash
+    node bin/swap-label.js --issue {n} --from workflow:human-review --to workflow:done
+    ```
+    **Stop.**
 
 ## Disposition rules (LLM)
 

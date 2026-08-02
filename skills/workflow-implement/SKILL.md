@@ -31,7 +31,17 @@ If preconditions fail, post short issue comment. **Do not invent a second work b
 2. **Checkout `workflow/state`**; pull latest; read `issues/{n}/` per handoff-format.
 3. Verify `workflow/PROJECT.md` on `base_branch` (read via fetch/checkout of base or work branch after create).
 4. Post session comment — **vary phrasing** (handoff-format implement example bank). Must link session; work-branch link after create.
-5. **Commit handoff (start)** on `workflow/state` — update `state.json`: `phase: implement`, `status: ai_running`, `work_branch: workflow/issue-{n}`, history `started`; push.
+5. **Commit handoff (start)** on `workflow/state` (deterministic) — update `state.json`:
+   ```bash
+   node bin/finalize-state.js \
+     --file "workflow/state/issues/{n}/state.json" \
+     --phase implement \
+     --status ai_running \
+     --work-branch "workflow/issue-{n}"
+   git add workflow/state/issues/{n}/state.json
+   git commit -m "Implement: start issue-{n}"
+   git push origin workflow/state
+   ```
 6. **Create work branch** if missing: `workflow/issue-{n}` from `base_branch`; push; append history `work_branch_created` on next handoff commit (or same start commit if created before push).
 7. Merge language → PROJECT.md on **work branch**; commit ADRs if present.
 8. Feature or bugfix process on **work branch**.
@@ -55,11 +65,26 @@ Write to `issues/{n}/implement-handoff.md` on **`workflow/state`** at complete. 
 ## Complete sequence
 
 1. Push final work-branch commits.
-2. `gh pr create --draft --head workflow/issue-{n} --base {base_branch} …` — capture `pr_number` / `pr_url`.
-3. Checkout `workflow/state`; write `implement-handoff.md`; update `state.json` (`status: done`, `workflow_label: workflow:review`, `pr_number`, `pr_url`, history).
+2. Create draft PR (deterministic PR linking):
+   ```bash
+   gh pr create --draft --head workflow/issue-{n} --base {base_branch} --title "Issue {n}: ..." --body "Implementation for issue #{n}"
+   # Capture pr_number and pr_url from output
+   ```
+3. Checkout `workflow/state`; write `implement-handoff.md`; update `state.json` (deterministic):
+   ```bash
+   node bin/finalize-state.js \
+     --file "workflow/state/issues/{n}/state.json" \
+     --phase implement \
+     --status done \
+     --pr-number {pr_number}
+   ```
 4. Commit + push handoff on `workflow/state`.
 5. Short issue comment — **vary phrasing** (handoff-format implement complete bank). Must link draft PR.
-6. **Swap labels last** — `workflow:review`. **Stop.**
+6. **Swap labels last** (deterministic):
+   ```bash
+   node bin/swap-label.js --issue {n} --from workflow:implement --to workflow:review
+   ```
+   **Stop.**
 
 ## Writable locations
 

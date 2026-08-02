@@ -19,13 +19,18 @@ try {
   const state = JSON.parse(fs.readFileSync(file, 'utf-8'));
   validateStateJson(state);
 
-  // Build updates
+  // Build updates (flexible for different phases)
   const updates = {};
   if (args.phase) updates.phase = args.phase;
   if (args.status) updates.status = args.status;
   if (args['requirements-approved'] !== undefined) {
     updates.requirements_approved = args['requirements-approved'] === 'true';
   }
+  if (args['work-branch']) updates.work_branch = args['work-branch'];
+  if (args['pr-number']) updates.pr_number = parseInt(args['pr-number']);
+  if (args['review-verdict']) updates.review_verdict = args['review-verdict'];
+  if (args['review-head-sha']) updates.review_head_sha = args['review-head-sha'];
+  if (args['workflow-label']) updates.workflow_label = args['workflow-label'];
 
   // Update and validate transitions
   const newState = updateState(state, updates);
