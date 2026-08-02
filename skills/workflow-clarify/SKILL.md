@@ -78,12 +78,15 @@ Same as A/B.
 1. **Swap labels first** — `workflow:clarify`. Nothing else on GitHub before this.
 2. **Read issue** — number, title, body, labels, URL.
 3. **Verify init** — `workflow/PROJECT.md` on `base_branch` via `git show origin/{base_branch}:workflow/PROJECT.md`; else stop → `/workflow-init`.
-4. **Ensure `workflow/state` + initial handoff commit** (see handoff-format):
-   - Ensure-or-create long-lived `workflow/state`
-   - Write `state.json` per [fixture](../workflow-routines/fixtures/state-example-clarify-start.json)
-   - Write initial `task.md`, `language.md`, `requirements.md` under `issues/{n}/`
-   - Create empty `issues/{n}/metrics.jsonl`
-   - Commit + push `workflow/state`
+4. **Ensure `workflow/state` + initial handoff commit** (deterministic):
+   ```bash
+   # Create initial handoff files (state.json, task.md, requirements.md, language.md, metrics.jsonl)
+   node bin/clarify-init.js "workflow/state/issues/{n}" "{n}" "{issue_title}"
+   git add workflow/state/issues/{n}/
+   git commit -m "Clarify: init issue-{n}"
+   git push origin workflow/state
+   ```
+   If this fails, post short issue comment and stop. Otherwise continue.
 5. **Post session comment** — pick a **fresh phrasing** from handoff-format example bank (or invent one). **Must link** session + **state tree** (`…/tree/workflow/state/issues/{n}`). Reference the issue topic when natural.
 
    Do **not** reuse the same clarify-start comment across issues.
@@ -109,10 +112,20 @@ Checkout `workflow/state`, read `issues/{n}/`, or use session comment link. Cont
 
 1. Read the answer from the **session** (not the issue thread).
 2. Update `requirements.md`, `language.md`, `state.json` on `workflow/state`.
-3. **Append one `clarify_turn` to `metrics.jsonl`** (same commit):
+3. **Append one `clarify_turn` to `metrics.jsonl`** (deterministic validation):
+   ```bash
+   # Validate and append metrics event
+   node bin/append-metric.js \
+     --file "workflow/state/issues/{n}/metrics.jsonl" \
+     --q-index {q_index} \
+     --issue {n} \
+     --category {category} \
+     --outcome {recommendation_outcome} \
+     --question "{question_text}"
+   # If this fails (invalid category/outcome), fix and retry—do not commit broken metrics
+   ```
    - `category` — exactly one from [metrics.md](../workflow-routines/metrics.md#question-categories)
    - `recommendation_outcome` — exactly one of: `skipped` | `accepted_recommendation` | `accepted_with_adjustment` | `rejected_recommendation`
-   - `q_index`, `question` text
    - Never rewrite prior JSONL lines
 4. Commit + push `workflow/state`.
 5. Ask next question in the session, or ask for `approve requirements` in the session.
@@ -120,7 +133,14 @@ Checkout `workflow/state`, read `issues/{n}/`, or use session comment link. Cont
 ## On `approve requirements` (session message)
 
 1. Verify `requirements.md` complete.
-2. Finalize `state.json` — `requirements_approved: true`, `status: done`, history.
+2. Finalize `state.json` (deterministic state update):
+   ```bash
+   node bin/finalize-state.js \
+     --file "workflow/state/issues/{n}/state.json" \
+     --requirements-approved true \
+     --status done
+   # Validates transition and updates timestamps
+   ```
 3. Check approval in `requirements.md`.
 4. Commit + push `workflow/state`.
 5. **Post approval comment** on the issue:
@@ -130,7 +150,12 @@ Checkout `workflow/state`, read `issues/{n}/`, or use session comment link. Cont
    ```bash
    gh issue comment {n} --body-file /tmp/requirements-comment.md
    ```
-6. **Swap labels last** — `workflow:implement`. **Stop.**
+6. **Swap labels last** (deterministic):
+   ```bash
+   node bin/swap-label.js --issue {n} --from workflow:clarify --to workflow:implement
+   # Validates label sequence and applies swap
+   ```
+   **Stop.**
 
 ## requirements.md template
 
