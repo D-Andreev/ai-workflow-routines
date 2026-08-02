@@ -1,5 +1,5 @@
-const test = require('node:test');
-const assert = require('node:assert');
+import test from 'node:test';
+import assert from 'node:assert';
 
 test('pr-linker - exports required functions', () => {
   const pr = require('../lib/pr-linker');
@@ -18,7 +18,8 @@ test('pr-linker - runGh escapes quotes in body', () => {
   try {
     pr.commentPR(999, 'Comment with "quotes" and special chars');
   } catch (e) {
-    assert.ok(e.message.includes('gh command failed')); // Expected to fail without real PR
+    const error = e as Error;
+    assert.ok(error.message.includes('gh command failed')); // Expected to fail without real PR
   }
 });
 

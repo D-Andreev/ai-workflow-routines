@@ -1,12 +1,12 @@
-const test = require('node:test');
-const assert = require('node:assert');
-const fs = require('fs');
-const path = require('path');
-const { validateStateJson, validateFinding, validateReviewFindingsJson, validateFindingsGradeJson, createInitialState, createInitialHandoff } = require('../lib/handoff-schema');
+import test from 'node:test';
+import assert from 'node:assert';
+import fs from 'fs';
+import path from 'path';
+import { validateStateJson, validateFinding, validateReviewFindingsJson, validateFindingsGradeJson, createInitialState, createInitialHandoff } from '../lib/handoff-schema';
 
 const testDir = path.join(__dirname, '..', '.test-temp');
 
-function setup() {
+function setup(): void {
   if (!fs.existsSync(testDir)) fs.mkdirSync(testDir, { recursive: true });
 }
 
@@ -18,8 +18,8 @@ test('handoff-schema - validateStateJson', () => {
     base_branch: 'main'
   }));
 
-  assert.throws(() => validateStateJson({ issue_number: -1, base_branch: 'main' }), /positive integer/);
-  assert.throws(() => validateStateJson({ issue_number: 42 }), /base_branch required/);
+  assert.throws(() => validateStateJson({ issue_number: -1, base_branch: 'main' } as any), /positive integer/);
+  assert.throws(() => validateStateJson({ issue_number: 42 } as any), /base_branch required/);
 });
 
 test('handoff-schema - validateFinding', () => {
@@ -31,8 +31,8 @@ test('handoff-schema - validateFinding', () => {
     required: true
   }));
 
-  assert.throws(() => validateFinding({ id: 'F1', summary: 'test', paths: [], required: true }), /severity/);
-  assert.throws(() => validateFinding({ id: 'F1', summary: 'test', paths: ['src/'], severity: 'critical', required: 'yes' }), /boolean/);
+  assert.throws(() => validateFinding({ id: 'F1', summary: 'test', paths: [], required: true } as any), /severity/);
+  assert.throws(() => validateFinding({ id: 'F1', summary: 'test', paths: ['src/'], severity: 'critical', required: 'yes' } as any), /boolean/);
 });
 
 test('handoff-schema - validateReviewFindingsJson', () => {
@@ -43,8 +43,8 @@ test('handoff-schema - validateReviewFindingsJson', () => {
     findings: []
   }));
 
-  assert.throws(() => validateReviewFindingsJson({ issue_number: 42, review_head_sha: 'abc', verdict: 'MAYBE', findings: [] }), /Invalid verdict/);
-  assert.throws(() => validateReviewFindingsJson({ issue_number: 42, findings: [] }), /review_head_sha required/);
+  assert.throws(() => validateReviewFindingsJson({ issue_number: 42, review_head_sha: 'abc', verdict: 'MAYBE' as any, findings: [] }), /Invalid verdict/);
+  assert.throws(() => validateReviewFindingsJson({ issue_number: 42, findings: [] } as any), /review_head_sha required/);
 });
 
 test('handoff-schema - validateFindingsGradeJson', () => {
@@ -56,7 +56,7 @@ test('handoff-schema - validateFindingsGradeJson', () => {
   }));
 
   assert.throws(() => validateFindingsGradeJson({
-    issue_number: 42, method: 'invalid', suggestions_applicable: true, dispositions: []
+    issue_number: 42, method: 'invalid' as any, suggestions_applicable: true, dispositions: []
   }), /Invalid method/);
 });
 

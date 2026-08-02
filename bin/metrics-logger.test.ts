@@ -1,16 +1,16 @@
-const test = require('node:test');
-const assert = require('node:assert');
-const fs = require('fs');
-const path = require('path');
-const { appendClarifyTurn, appendReviewCompleted, appendCloseCompleted } = require('../lib/metrics-logger');
+import test from 'node:test';
+import assert from 'node:assert';
+import fs from 'fs';
+import path from 'path';
+import { appendClarifyTurn, appendReviewCompleted, appendCloseCompleted } from '../lib/metrics-logger';
 
 const testDir = path.join(__dirname, '..', '.test-temp');
 
-function setup() {
+function setup(): void {
   if (!fs.existsSync(testDir)) fs.mkdirSync(testDir, { recursive: true });
 }
 
-function cleanup(file) {
+function cleanup(file: string): void {
   try { fs.unlinkSync(file); } catch {}
 }
 
@@ -57,7 +57,7 @@ test('metrics-logger - appendClarifyTurn validates category', () => {
   cleanup(metricsFile);
 
   assert.throws(() => appendClarifyTurn(metricsFile, {
-    qIndex: 1, issueNumber: 42, category: 'invalid', outcome: 'skipped', question: 'test'
+    qIndex: 1, issueNumber: 42, category: 'invalid' as any, outcome: 'skipped', question: 'test'
   }), /Invalid category/);
 });
 
@@ -90,7 +90,7 @@ test('metrics-logger - appendReviewCompleted validates verdict', () => {
   cleanup(metricsFile);
 
   assert.throws(() => appendReviewCompleted(metricsFile, {
-    issueNumber: 42, verdict: 'MAYBE', criticalCount: 0, minorCount: 0, notesCount: 0
+    issueNumber: 42, verdict: 'MAYBE' as any, criticalCount: 0, minorCount: 0, notesCount: 0
   }), /Invalid verdict/);
 });
 

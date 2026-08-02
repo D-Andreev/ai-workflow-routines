@@ -1,6 +1,6 @@
-const test = require('node:test');
-const assert = require('node:assert');
-const { getWorkflowLabel, validateWorkflowLabel, getNextLabel, getLabelSwap } = require('../lib/label-manager');
+import test from 'node:test';
+import assert from 'node:assert';
+import { getWorkflowLabel, validateWorkflowLabel, getNextLabel, getLabelSwap } from '../lib/label-manager';
 
 test('label-manager - getWorkflowLabel', () => {
   assert.equal(getWorkflowLabel(['workflow:start', 'type:bug']), 'workflow:start');
@@ -15,7 +15,7 @@ test('label-manager - validateWorkflowLabel', () => {
   assert.doesNotThrow(() => validateWorkflowLabel('workflow:done'));
   assert.doesNotThrow(() => validateWorkflowLabel(null));
 
-  assert.throws(() => validateWorkflowLabel('workflow:invalid'), /Invalid workflow label/);
+  assert.throws(() => validateWorkflowLabel('workflow:invalid' as any), /Invalid workflow label/);
 });
 
 test('label-manager - getNextLabel', () => {

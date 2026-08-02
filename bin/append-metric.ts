@@ -1,16 +1,17 @@
 #!/usr/bin/env node
 /**
  * Append metrics event: clarify_turn, review_completed, or close_completed
- * Usage: node bin/append-metric.js --file metrics.jsonl --q-index 1 --issue 42 --category scope --outcome accepted_recommendation --question "..."
+ * Usage: node dist/bin/append-metric.js --file metrics.jsonl --q-index 1 --issue 42 --category scope --outcome accepted_recommendation --question "..."
  */
 
-const { appendClarifyTurn, appendReviewCompleted, appendCloseCompleted } = require('../lib/metrics-logger');
-const minimist = require('minimist');
+import minimist from 'minimist';
+import { appendClarifyTurn, appendReviewCompleted, appendCloseCompleted } from '../lib/metrics-logger';
+import { QuestionCategory, RecommendationOutcome, Verdict } from '../lib/validators';
 
 const args = minimist(process.argv.slice(2));
 
 try {
-  const file = args.file;
+  const file = args.file as string;
   if (!file) throw new Error('--file required');
 
   if (args['q-index'] !== undefined) {
@@ -18,9 +19,9 @@ try {
     appendClarifyTurn(file, {
       qIndex: parseInt(args['q-index']),
       issueNumber: parseInt(args.issue),
-      category: args.category,
-      outcome: args.outcome,
-      question: args.question,
+      category: args.category as QuestionCategory,
+      outcome: args.outcome as RecommendationOutcome,
+      question: args.question as string,
       sessionId: args['session-id'] || null
     });
     console.log(`✅ Appended clarify_turn Q${args['q-index']}`);
@@ -28,7 +29,7 @@ try {
     // Review completed
     appendReviewCompleted(file, {
       issueNumber: parseInt(args.issue),
-      verdict: args.verdict,
+      verdict: args.verdict as Verdict,
       criticalCount: parseInt(args['critical-count'] || 0),
       minorCount: parseInt(args['minor-count'] || 0),
       notesCount: parseInt(args['notes-count'] || 0),
@@ -39,7 +40,7 @@ try {
     // Close completed
     appendCloseCompleted(file, {
       issueNumber: parseInt(args.issue),
-      method: args.method,
+      method: args.method as 'llm' | 'path_heuristic',
       suggestionsApplicable: args['suggestions-applicable'] !== 'false',
       findingsData: {
         dispositions: [],
@@ -58,6 +59,7 @@ try {
     throw new Error('Must specify --q-index (clarify) or --verdict (review) or --method (close)');
   }
 } catch (e) {
-  console.error(`❌ ${e.message}`);
+  const error = e as Error;
+  console.error(`❌ ${error.message}`);
   process.exit(1);
 }

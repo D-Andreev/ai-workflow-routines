@@ -1,20 +1,20 @@
 #!/usr/bin/env node
 /**
  * Deterministic label swap: validate sequence and apply
- * Usage: node bin/swap-label.js --issue 42 --from workflow:clarify --to workflow:implement
+ * Usage: node dist/bin/swap-label.js --issue 42 --from workflow:clarify --to workflow:implement
  */
 
-const { execSync } = require('child_process');
-const { validateTransition } = require('../lib/state-manager');
-const { validateWorkflowLabel } = require('../lib/label-manager');
-const minimist = require('minimist');
+import { execSync } from 'child_process';
+import minimist from 'minimist';
+import { validateTransition } from '../lib/state-manager';
+import { validateWorkflowLabel } from '../lib/label-manager';
 
 const args = minimist(process.argv.slice(2));
 
 try {
-  const issue = args.issue;
-  const from = args.from;
-  const to = args.to;
+  const issue = args.issue as string;
+  const from = args.from as string;
+  const to = args.to as string;
 
   if (!issue || !from || !to) {
     throw new Error('Usage: --issue N --from LABEL --to LABEL');
@@ -25,7 +25,7 @@ try {
   validateWorkflowLabel(to);
 
   // Validate transition (label phases map to skill phases)
-  const phaseMap = {
+  const phaseMap: Record<string, string> = {
     'workflow:start': 'clarify',
     'workflow:clarify': 'clarify',
     'workflow:implement': 'implement',
@@ -47,10 +47,12 @@ try {
     execSync(addCmd, { stdio: 'inherit' });
     console.log(`✅ Swapped labels on issue #${issue}`);
   } catch (e) {
-    console.error(`❌ GitHub API error: ${e.message}`);
+    const error = e as Error;
+    console.error(`❌ GitHub API error: ${error.message}`);
     process.exit(1);
   }
 } catch (e) {
-  console.error(`❌ ${e.message}`);
+  const error = e as Error;
+  console.error(`❌ ${error.message}`);
   process.exit(1);
 }

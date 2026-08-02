@@ -1,6 +1,6 @@
-const test = require('node:test');
-const assert = require('node:assert');
-const { branchExists, getCurrentBranch, revParse } = require('../lib/git-client');
+import test from 'node:test';
+import assert from 'node:assert';
+import { branchExists, getCurrentBranch, revParse } from '../lib/git-client';
 
 // These tests are basic; actual git commands are hard to test without a real repo
 // In real usage, the git functions will be called in a proper git repository
@@ -23,7 +23,8 @@ test('git-client - commit escapes quotes in message', () => {
   try {
     gc.commit('dummy.txt', 'Test "quoted" message');
   } catch (e) {
-    assert.ok(e.message.includes('git command failed')); // Expected to fail
+    const error = e as Error;
+    assert.ok(error.message.includes('git command failed')); // Expected to fail
   }
 });
 

@@ -1,7 +1,100 @@
-const fs = require('fs');
-const { validatePhase, validateCategory, validateOutcome, validateDisposition, validateSeverity, validateVerdict } = require('./validators');
+import * as fs from 'fs';
+import { validateCategory, validateOutcome, validateDisposition, validateSeverity, validateVerdict, QuestionCategory, RecommendationOutcome, Verdict, Disposition } from './validators';
 
-function appendClarifyTurn(metricsFile, { qIndex, issueNumber, category, outcome, question, sessionId }) {
+interface ClarifyTurnEvent {
+  schema_version: 1;
+  ts: string;
+  issue_number: number;
+  phase: 'clarify';
+  event: 'clarify_turn';
+  session_id: string | null;
+  q_index: number;
+  category: QuestionCategory;
+  recommendation_outcome: RecommendationOutcome;
+  question: string;
+}
+
+interface ReviewCompletedEvent {
+  schema_version: 1;
+  ts: string;
+  issue_number: number;
+  phase: 'review';
+  event: 'review_completed';
+  session_id: string | null;
+  verdict: Verdict;
+  critical_count: number;
+  minor_count: number;
+  notes_count: number;
+}
+
+interface ReviewFindingDisposition {
+  id: string;
+  disposition: Disposition;
+  severity: 'critical' | 'minor' | 'note';
+}
+
+interface CloseCompletedEvent {
+  schema_version: 1;
+  ts: string;
+  issue_number: number;
+  phase: 'close';
+  event: 'close_completed';
+  session_id: string | null;
+  method: 'llm' | 'path_heuristic';
+  suggestions_applicable: boolean;
+  findings_total: number;
+  findings_addressed: number;
+  findings_partial: number;
+  findings_ignored: number;
+  findings_unknown: number;
+  critical_total: number;
+  critical_addressed: number;
+  minor_total: number;
+  minor_addressed: number;
+  notes_total: number;
+  notes_addressed: number;
+  commits_since_review: number;
+  dispositions: ReviewFindingDisposition[];
+}
+
+export interface AppendClarifyTurnParams {
+  qIndex: number;
+  issueNumber: number;
+  category: QuestionCategory;
+  outcome: RecommendationOutcome;
+  question: string;
+  sessionId?: string | null;
+}
+
+export interface AppendReviewCompletedParams {
+  issueNumber: number;
+  verdict: Verdict;
+  criticalCount: number;
+  minorCount: number;
+  notesCount: number;
+  sessionId?: string | null;
+}
+
+export interface AppendCloseCompletedParams {
+  issueNumber: number;
+  method: 'llm' | 'path_heuristic';
+  suggestionsApplicable: boolean;
+  findingsData: {
+    dispositions: ReviewFindingDisposition[];
+    critical_total: number;
+    critical_addressed: number;
+    minor_total: number;
+    minor_addressed: number;
+    notes_total: number;
+    notes_addressed: number;
+    commits_since_review: number;
+  };
+  sessionId?: string | null;
+}
+
+export function appendClarifyTurn(metricsFile: string, params: AppendClarifyTurnParams): void {
+  const { qIndex, issueNumber, category, outcome, question, sessionId } = params;
+
   if (!Number.isInteger(qIndex) || qIndex < 1) throw new Error(`Invalid q_index: ${qIndex}`);
   if (!Number.isInteger(issueNumber) || issueNumber < 1) throw new Error(`Invalid issue_number: ${issueNumber}`);
   if (!question || typeof question !== 'string') throw new Error('Missing question text');
@@ -9,7 +102,7 @@ function appendClarifyTurn(metricsFile, { qIndex, issueNumber, category, outcome
   validateCategory(category);
   validateOutcome(outcome);
 
-  const event = {
+  const event: ClarifyTurnEvent = {
     schema_version: 1,
     ts: new Date().toISOString(),
     issue_number: issueNumber,
@@ -28,7 +121,9 @@ function appendClarifyTurn(metricsFile, { qIndex, issueNumber, category, outcome
   fs.appendFileSync(metricsFile, line + '\n');
 }
 
-function appendReviewCompleted(metricsFile, { issueNumber, verdict, criticalCount, minorCount, notesCount, sessionId }) {
+export function appendReviewCompleted(metricsFile: string, params: AppendReviewCompletedParams): void {
+  const { issueNumber, verdict, criticalCount, minorCount, notesCount, sessionId } = params;
+
   if (!Number.isInteger(issueNumber) || issueNumber < 1) throw new Error(`Invalid issue_number: ${issueNumber}`);
   if (typeof criticalCount !== 'number' || criticalCount < 0) throw new Error('criticalCount must be >= 0');
   if (typeof minorCount !== 'number' || minorCount < 0) throw new Error('minorCount must be >= 0');
@@ -36,7 +131,7 @@ function appendReviewCompleted(metricsFile, { issueNumber, verdict, criticalCoun
 
   validateVerdict(verdict);
 
-  const event = {
+  const event: ReviewCompletedEvent = {
     schema_version: 1,
     ts: new Date().toISOString(),
     issue_number: issueNumber,
@@ -55,7 +150,9 @@ function appendReviewCompleted(metricsFile, { issueNumber, verdict, criticalCoun
   fs.appendFileSync(metricsFile, line + '\n');
 }
 
-function appendCloseCompleted(metricsFile, { issueNumber, method, suggestionsApplicable, findingsData, sessionId }) {
+export function appendCloseCompleted(metricsFile: string, params: AppendCloseCompletedParams): void {
+  const { issueNumber, method, suggestionsApplicable, findingsData, sessionId } = params;
+
   if (!Number.isInteger(issueNumber) || issueNumber < 1) throw new Error(`Invalid issue_number: ${issueNumber}`);
   if (!['llm', 'path_heuristic'].includes(method)) throw new Error(`Invalid method: ${method}`);
   if (typeof suggestionsApplicable !== 'boolean') throw new Error('suggestionsApplicable must be boolean');
@@ -66,7 +163,7 @@ function appendCloseCompleted(metricsFile, { issueNumber, method, suggestionsApp
   const ignored = dispositions.filter(d => d.disposition === 'ignored').length;
   const unknown = dispositions.filter(d => d.disposition === 'unknown').length;
 
-  const event = {
+  const event: CloseCompletedEvent = {
     schema_version: 1,
     ts: new Date().toISOString(),
     issue_number: issueNumber,
@@ -95,5 +192,3 @@ function appendCloseCompleted(metricsFile, { issueNumber, method, suggestionsApp
 
   fs.appendFileSync(metricsFile, line + '\n');
 }
-
-module.exports = { appendClarifyTurn, appendReviewCompleted, appendCloseCompleted };

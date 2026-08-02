@@ -4,3 +4,7 @@ node_modules/
 .test-temp/
 .env
 .env.local
+dist/
+*.d.ts
+*.d.ts.map
+*.js.map

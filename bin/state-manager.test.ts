@@ -1,15 +1,16 @@
-const test = require('node:test');
-const assert = require('node:assert');
-const { validateTransition, validateStatusTransition, getNextPhase, updateState } = require('../lib/state-manager');
+import test from 'node:test';
+import assert from 'node:assert';
+import { validateTransition, validateStatusTransition, getNextPhase, updateState } from '../lib/state-manager';
+import { WorkflowState } from '../lib/handoff-schema';
 
 test('state-manager - validateTransition', () => {
   assert.doesNotThrow(() => validateTransition('clarify', 'implement'));
   assert.doesNotThrow(() => validateTransition('implement', 'review'));
   assert.doesNotThrow(() => validateTransition('review', 'close'));
 
-  assert.throws(() => validateTransition('clarify', 'review'), /Invalid phase/);
-  assert.throws(() => validateTransition('implement', 'clarify'), /Invalid phase/);
-  assert.throws(() => validateTransition('close', 'anything'), /Invalid phase/);
+  assert.throws(() => validateTransition('clarify', 'review' as any), /Invalid phase/);
+  assert.throws(() => validateTransition('implement', 'clarify' as any), /Invalid phase/);
+  assert.throws(() => validateTransition('close', 'anything' as any), /Invalid phase/);
 });
 
 test('state-manager - validateStatusTransition', () => {
@@ -18,8 +19,8 @@ test('state-manager - validateStatusTransition', () => {
   assert.doesNotThrow(() => validateStatusTransition('awaiting_human', 'awaiting_human')); // same state ok
   assert.doesNotThrow(() => validateStatusTransition('ai_running', 'ai_running'));
 
-  assert.throws(() => validateStatusTransition('done', 'ai_running'), /Invalid status transition/);
-  assert.throws(() => validateStatusTransition('ai_running', 'awaiting_human'), /Invalid status transition/);
+  assert.throws(() => validateStatusTransition('done', 'ai_running' as any), /Invalid status transition/);
+  assert.throws(() => validateStatusTransition('ai_running', 'awaiting_human' as any), /Invalid status transition/);
 });
 
 test('state-manager - getNextPhase', () => {
@@ -31,10 +32,11 @@ test('state-manager - getNextPhase', () => {
 });
 
 test('state-manager - updateState', () => {
-  const state = {
+  const state: WorkflowState = {
     issue_number: 42,
     phase: 'clarify',
-    status: 'awaiting_human'
+    status: 'awaiting_human',
+    base_branch: 'main'
   };
 
   const updated = updateState(state, {
@@ -47,14 +49,14 @@ test('state-manager - updateState', () => {
 });
 
 test('state-manager - updateState enforces phase transitions', () => {
-  const state = { issue_number: 42, phase: 'clarify', status: 'done' };
+  const state: WorkflowState = { issue_number: 42, phase: 'clarify', status: 'done', base_branch: 'main' };
 
   assert.doesNotThrow(() => updateState(state, { phase: 'implement' }));
-  assert.throws(() => updateState(state, { phase: 'review' }), /Invalid phase transition/);
+  assert.throws(() => updateState(state, { phase: 'review' as any }), /Invalid phase transition/);
 });
 
 test('state-manager - updateState enforces status transitions', () => {
-  const state = { issue_number: 42, status: 'done' };
+  const state: WorkflowState = { issue_number: 42, status: 'done', base_branch: 'main' };
 
-  assert.throws(() => updateState(state, { status: 'awaiting_human' }), /Invalid status transition/);
+  assert.throws(() => updateState(state, { status: 'awaiting_human' as any }), /Invalid status transition/);
 });
