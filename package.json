@@ -4,5 +4,8 @@
   "description": "Workflow routines for GitHub issues",
   "scripts": {
     "test": "node --test bin/*.test.js"
+  },
+  "dependencies": {
+    "minimist": "^1.2.8"
   }
 }
