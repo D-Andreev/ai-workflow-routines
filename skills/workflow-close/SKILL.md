@@ -81,8 +81,22 @@ If the issue lacks `workflow:human-review` or findings are missing, **stop**.
     git commit -m "Close: grade findings issue-{n}"
     git push origin workflow/state
     ```
-11. Short **issue** comment — varied summary (addressed / partial / ignored counts; call out ignored **critical**). Link state tree if natural.
-12. **Swap labels last** (deterministic):
+11. **Send metrics to Honeycomb** (optional, if configured):
+    ```bash
+    HONEYCOMB_KEY="${HONEYCOMB_API_KEY}" # from environment variable or secret
+    if [ -n "$HONEYCOMB_KEY" ]; then
+      node bin/send-to-honeycomb-issue.js \
+        --issue {n} \
+        --honeycomb-key "$HONEYCOMB_KEY" \
+        --dataset workflow-metrics \
+        --repo "${GITHUB_REPOSITORY}"
+      # Logs success/failure; does not stop workflow on failure
+    fi
+    ```
+    If key is not set, this step is skipped (metrics stay on workflow/state for later batch send).
+
+12. Short **issue** comment — varied summary (addressed / partial / ignored counts; call out ignored **critical**). Link state tree if natural.
+13. **Swap labels last** (deterministic):
     ```bash
     node bin/swap-label.js --issue {n} --from workflow:human-review --to workflow:done
     ```
